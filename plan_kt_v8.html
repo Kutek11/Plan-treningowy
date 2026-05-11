@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="KT Plan">
+<meta name="theme-color" content="#0f0f0f">
+<title>Plan KT — Master v8</title>
+<style>
+:root{
+  --bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#222;--bg4:#2a2a2a;
+  --text:#e8e6df;--text2:#a8a69f;--text3:#6e6c67;
+  --border:#333;--border2:#444;
+  --blue:#2a6db5;--blue-bg:#0d2540;--blue-text:#6ab3f5;
+  --green:#2d7a3a;--green-bg:#0d2a12;--green-text:#6bc97a;
+  --amber:#8a5c0a;--amber-bg:#2a1e05;--amber-text:#f5b942;
+  --red:#8a1f1f;--red-bg:#2a0a0a;--red-text:#f56b6b;
+  --radius:8px;--radius-lg:12px;
+  --font:'Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6;min-height:100vh}
+.app{max-width:800px;margin:0 auto;padding:0 0 80px}
+.header{padding:16px 16px 12px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:100}
+.header h1{font-size:16px;font-weight:600;margin-bottom:2px}
+.header p{font-size:11px;color:var(--text3)}
+.nav-main{display:flex;gap:0;overflow-x:auto;background:var(--bg2);border-bottom:1px solid var(--border);scrollbar-width:none}
+.nav-main::-webkit-scrollbar{display:none}
+.nav-main button{flex-shrink:0;background:none;border:none;border-bottom:2px solid transparent;padding:10px 14px;font-size:12px;color:var(--text2);cursor:pointer;font-family:var(--font);white-space:nowrap;transition:color .15s}
+.nav-main button.on{color:var(--text);border-bottom-color:var(--text);font-weight:500}
+.nav-sub{display:flex;gap:4px;padding:10px 16px 4px;overflow-x:auto;scrollbar-width:none;flex-wrap:wrap}
+.nav-sub::-webkit-scrollbar{display:none}
+.nav-sub button{flex-shrink:0;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);padding:4px 10px;font-size:11px;color:var(--text2);cursor:pointer;font-family:var(--font);white-space:nowrap}
+.nav-sub button.on{background:var(--text);color:var(--bg);border-color:var(--text)}
+.content{padding:12px 16px}
+.section{display:none}.section.on{display:block}
+.sub-section{display:none}.sub-section.on{display:block}
+h2{font-size:14px;font-weight:600;margin:12px 0 6px;color:var(--text)}
+h3{font-size:13px;font-weight:500;margin:10px 0 4px;color:var(--text)}
+p{font-size:12px;color:var(--text2);margin-bottom:5px;line-height:1.65}
+ul{padding-left:16px;margin:4px 0 8px}
+li{font-size:12px;color:var(--text2);margin-bottom:3px;line-height:1.6}
+strong{color:var(--text);font-weight:500}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:10px 12px;margin-bottom:8px}
+.alert{padding:8px 12px;border-radius:0 var(--radius) var(--radius) 0;margin-bottom:10px;font-size:12px;line-height:1.6}
+.alert-danger{background:var(--red-bg);border-left:3px solid var(--red-text);color:var(--text)}
+.alert-warn{background:var(--amber-bg);border-left:3px solid var(--amber-text);color:var(--text)}
+.alert-info{background:var(--blue-bg);border-left:3px solid var(--blue-text);color:var(--text)}
+.alert-ok{background:var(--green-bg);border-left:3px solid var(--green-text);color:var(--text)}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:10px;font-weight:500}
+.badge-r{background:var(--red-bg);color:var(--red-text)}
+.badge-a{background:var(--amber-bg);color:var(--amber-text)}
+.badge-g{background:var(--green-bg);color:var(--green-text)}
+.badge-b{background:var(--blue-bg);color:var(--blue-text)}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
+.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:8px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px}
+@media(max-width:500px){.g4{grid-template-columns:repeat(2,1fr)}.g3{grid-template-columns:repeat(2,1fr)}}
+.metric{background:var(--bg3);border-radius:var(--radius);padding:9px}
+.metric .n{font-size:18px;font-weight:600;color:var(--text);line-height:1.2}
+.metric .l{font-size:10px;color:var(--text3);margin-top:2px}
+.tbl{width:100%;border-collapse:collapse;font-size:11px;margin:4px 0 10px}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tbl th{text-align:left;padding:5px 7px;border-bottom:1px solid var(--border2);font-size:10px;color:var(--text3);font-weight:500;background:var(--bg3);white-space:nowrap}
+.tbl td{padding:5px 7px;border-bottom:1px solid var(--border);vertical-align:top;font-size:11px;color:var(--text2)}
+.tbl td:first-child{font-weight:500;color:var(--text)}
+.tbl tr:last-child td{border-bottom:none}
+.tbl .cel{color:var(--red-text);font-weight:600}
+.tbl .ok-v{color:var(--green-text);font-weight:500}
+.session-tag{font-size:10px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px}
+.tag-am{color:var(--blue-text)}
+.tag-pm{color:var(--green-text)}
+.tag-walki{color:var(--red-text)}
+.tag-sm{color:#f5b942}
+.tag-note{color:var(--text3)}
+.seq{counter-reset:step}
+.seq-item{counter-increment:step;display:flex;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px;align-items:flex-start}
+.seq-item:last-child{border-bottom:none}
+.seq-item::before{content:counter(step);font-size:10px;font-weight:600;color:var(--blue-text);flex-shrink:0;min-width:14px;margin-top:2px}
+.seq-item .body{flex:1;min-width:0;color:var(--text2);line-height:1.6}
+.sep{height:1px;background:var(--border);margin:10px 0}
+.tier-label{font-size:12px;font-weight:600;padding:6px 0 4px;border-bottom:1px solid var(--border2);color:var(--text);margin:14px 0 6px}
+.footnote{font-size:10px;color:var(--text3);margin-top:6px;font-style:italic}
+@media(max-width:600px){.content{padding:10px 12px}.tbl th,.tbl td{font-size:10px;padding:4px 5px}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<div class="header">
+  <h1>Plan treningowy KT · 29 tygodni</h1>
+  <p>26l · 193cm · 119kg start → ~95kg · Sztuki walki pon/śr od Tygodnia 1 · Stair master wt/czw wieczór</p>
+</div>
+
+<nav class="nav-main" id="main-nav">
+  <button class="on" onclick="showMain('fazy',this)">Fazy</button>
+  <button onclick="showMain('zywie',this)">Żywienie</button>
+  <button onclick="showMain('proto',this)">Protokoły</button>
+  <button onclick="showMain('param',this)">Parametry</button>
+  <button onclick="showMain('bench',this)">Benchmarki</button>
+  <button onclick="showMain('tech',this)">Technika</button>
+  <button onclick="showMain('bezp',this)">Bezpieczeństwo</button>
+</nav>
+
+<div class="content">
+
+<!-- ═══════════════ FAZY ═══════════════ -->
+<div id="s-fazy" class="section on">
+  <div class="nav-sub">
+    <button class="on" onclick="showSub('fazy','f1',this)">Faza 1</button>
+    <button onclick="showSub('fazy','f2',this)">Faza 2</button>
+    <button onclick="showSub('fazy','f3',this)">Faza 3</button>
+    <button onclick="showSub('fazy','f4',this)">Faza 4</button>
+  </div>
+
+  <!-- ═══ FAZA 1 · Tygodnie 1–3 ═══ -->
+  <div id="fazy-f1" class="sub-section on">
+    <div class="g4">
+      <div class="metric"><div class="l">Tygodnie</div><div class="n">1–3</div></div>
+      <div class="metric"><div class="l">Waga cel</div><div class="n">~112 kg</div></div>
+      <div class="metric"><div class="l">Podciąg. cel</div><div class="n">3–5 pow.</div></div>
+      <div class="metric"><div class="l">Nurkowanie cel</div><div class="n">22m</div></div>
+    </div>
+    <div class="alert alert-warn">Sztuki walki pon/śr od Tygodnia 1. Pon/śr rano = Push/Pull techniczne (nie do fiaska — wieczorem walki). Wt/czw = najcięższe dni tygodnia (po nocy regeneracji po technice). Stair master wt/czw po sile wieczorem. Priorytet F1: wzorce ruchowe, baza tlenowa, redukcja wagi, adaptacja ścięgien.</div>
+    <div class="alert alert-danger">Pon/śr rano: sesja siłowa MUSI kończyć się z energią — wieczorem walki. Intensywność siłowa ~70% w te dni. Wt/czw wieczór: bez ograniczeń — to są Twoje okna do maksymalnej pracy.</div>
+    <div class="alert alert-info">119kg START — dwie korekty vs niższa masa: (1) Bieg sobota startuje od 8km (nie 9km) — przy 119kg ryzyko dla kolan i rozcięgna podeszwowego jest wyższe. Marsz agresywnie gdy HR &gt;155. (2) Dipsy: maszyna odejmująca ciężar przez całą F1 — zaczynam od ~30kg odejm. i schodzę stopniowo do ~15kg na koniec F1. Szczegóły w progresji dipsów poniżej.</div>
+
+    <h2>Poniedziałek</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 06:00–07:30 · Siła — Push (umiarkowane)</div>
+      <div class="alert alert-info" style="margin-top:6px">Wieczorem walki — zostaw 30% w baku. @70% 1RM, nie do fiaska.</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+      <tr><td>Bench Press</td><td>4×8</td><td>2 min</td><td>@70% 1RM. Technika &gt; ciężar.</td></tr>
+      <tr><td>Incline DB Press</td><td>3×10</td><td>90s</td><td>@65% 1RM</td></tr>
+      <tr><td>Dipsy — maszyna odejmująca ciężar</td><td>4×10</td><td>2 min</td><td>Tyg 1: −30kg odejm. · Tyg 2: −25kg · Tyg 3: −20kg. Pełny zakres — barki poniżej łokci. Progresja tygodniowa obowiązkowa.</td></tr>
+      <tr><td>Overhead Press</td><td>3×10</td><td>90s</td><td>@65% 1RM</td></tr>
+      <tr><td>Tricep Pushdown</td><td>3×12</td><td>60s</td><td></td></tr>
+      <tr><td>Face Pulls</td><td>3×20</td><td>60s</td><td>OBOWIĄZKOWE — profilaktyka barku</td></tr>
+      </table></div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--red-text)">
+      <div class="session-tag tag-walki">PM 21:00–23:00 · Sztuki Walki — Technika</div>
+      <p>Lekki posiłek 19:00 (ryż + jajka). Odpoczynek 19:00–20:45. Po: shake białkowy + banan (23:30). Magnez przed snem.</p>
+    </div>
+
+    <h2>Wtorek</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 06:30–07:30 · Basen</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Blok</th><th>Dystans/Serie</th><th>Przerwa</th><th>Cel</th></tr>
+      <tr><td>Rozgrzewka</td><td>200m</td><td>easy</td><td>50m kraul/nogi/pull/kraul</td></tr>
+      <tr><td>Technika kraul</td><td>8×50m</td><td>25s</td><td>Catch & pull, wysokie łokcie</td></tr>
+      <tr><td>Wytrzymałość</td><td>8×100m</td><td>75s</td><td>Komfortowe tempo</td></tr>
+      <tr><td>CO2 tabele statyczne</td><td>6 rund</td><td>50s odp.</td><td>30s wstrzym. → +5s/tydzień. BEZ hyperwentylacji!</td></tr>
+      <tr><td>Cool-down</td><td>100m</td><td>easy</td><td></td></tr>
+      </table></div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--green-text)">
+      <div class="session-tag tag-pm">PM 18:00–21:00 · Siła Pull CIĘŻKA + Siady + Dipsy wytrzymałościowe + Stair Master</div>
+      <div class="alert alert-ok" style="margin-top:6px">Najcięższa sesja tygodnia. Noc po technice = pełna regeneracja OUN. Bez ograniczeń.</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+      <tr><td>Podciąg. gruba taśma</td><td>6×6–8</td><td>3 min</td><td>Łopatki aktywne przed każdym pow. Nie schodź na ziemię między seriami.</td></tr>
+      <tr><td>Barbell Row</td><td>5×8</td><td>2 min</td><td>@75% 1RM</td></tr>
+      <tr><td>Lat Pulldown (szeroki)</td><td>4×10</td><td>2 min</td><td></td></tr>
+      <tr><td>Seated Cable Row</td><td>4×10</td><td>2 min</td><td></td></tr>
+      <tr><td>Negatives Pull-ups</td><td>4×5</td><td>2 min</td><td>5s powolne opuszczenie. Siła ekscentryczna.</td></tr>
+      <tr><td>Bicep Curls (BB)</td><td>3×12</td><td>90s</td><td></td></tr>
+      <tr><td>Farmer's Carry (2×KB 24kg)</td><td>4×40m</td><td>60s</td><td>Siła chwytu + core stabilizacja</td></tr>
+      <tr><td>Dipsy BW — wytrzymałościowe</td><td>2×max (cel: 10+)</td><td>3 min</td><td>Maszyna odejmująca −15kg w Tyg 1–2, −10kg w Tyg 3. Pełny zakres. Nie schodź na ziemię. Przy 119kg BW dipsy na końcu F1 to cel, nie standard startowy.</td></tr>
+      <tr><td>Siady z leżenia z kotwiczeniem</td><td>3×2 min</td><td>3 min</td><td class="cel">Łokcie do podłoża w dole. Łokcie do kolan w górze. Stopy kotwiczone. Zapisuj wyniki.</td></tr>
+      </table></div>
+      <div class="session-tag tag-sm" style="margin-top:8px">STAIR MASTER · 30 min Zone 2 bezpośrednio po sile</div>
+      <p>HR 130–150. Mów zdaniem. Low-impact cardio przy 115kg — oszczędza stawy vs bieg.</p>
+    </div>
+
+    <h2>Środa</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 06:00–07:30 · Siła — Pull + Bieg (umiarkowane)</div>
+      <div class="alert alert-info" style="margin-top:6px">Wieczorem walki — intensywność umiarkowana. Bieg zastępuje ciężkie siłowanie dolnych partii.</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Blok</th><th>Serie/Czas</th><th>Intens.</th><th>Uwagi</th></tr>
+      <tr><td>Trucht rozgrzewka</td><td>5 min</td><td>easy</td><td></td></tr>
+      <tr><td>Tempo run</td><td>25–30 min</td><td>Zone 3</td><td>RPE 7/10. Mów słowo z trudem.</td></tr>
+      <tr><td>Burpees</td><td>6×10</td><td>—</td><td>50s przerwa</td></tr>
+      <tr><td>Box jumps (30–45cm)</td><td>5×8</td><td>eksploz.</td><td>Ląduj miękko. 60s przerwa.</td></tr>
+      <tr><td>Military crawl</td><td>5×20m</td><td>—</td><td>40s przerwa</td></tr>
+      <tr><td>Sprint</td><td>6×40m @85%</td><td>—</td><td>Marsz z powrotem</td></tr>
+      </table></div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--red-text)">
+      <div class="session-tag tag-walki">PM 21:00–23:00 · Sztuki Walki — Technika</div>
+      <p>Identyczny protokół jak poniedziałek. Shake + banan 23:30. Magnez.</p>
+    </div>
+
+    <h2>Czwartek</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 06:30–07:30 · Basen — Nurkowanie</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Blok</th><th>Dystans/Serie</th><th>Przerwa</th><th>Cel</th></tr>
+      <tr><td>Rozgrzewka</td><td>200m</td><td>easy</td><td></td></tr>
+      <tr><td>200m time trial</td><td>1×200m</td><td>—</td><td>Zapisz czas co tydzień!</td></tr>
+      <tr><td>600m aerobic</td><td>1×600m</td><td>—</td><td></td></tr>
+      <tr><td>Nurkowanie dynamiczne</td><td>4×max</td><td>4 min min.</td><td>Zatrzymaj przed silnym parciem. ASEKURACJA!</td></tr>
+      <tr><td>Glide practice</td><td>6×</td><td>2 min</td><td>Odbicie → streamline → jak najdalej</td></tr>
+      <tr><td>Cool-down</td><td>100m</td><td>easy</td><td></td></tr>
+      </table></div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--green-text)">
+      <div class="session-tag tag-pm">PM 18:00–21:00 · Nogi + Siady + Lina (chwyt) + Stair Master</div>
+      <div class="alert alert-ok" style="margin-top:6px">Drugi najcięższy dzień. Po regeneracji nocnej po technice. Bez ograniczeń.</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+      <tr><td>Back Squat</td><td>5×6</td><td>3 min</td><td>@75% 1RM</td></tr>
+      <tr><td>Romanian Deadlift</td><td>4×8</td><td>2 min</td><td>Hamstringi + hip hinge</td></tr>
+      <tr><td>Step-ups z krążkiem 20kg, podest 50cm</td><td>4×45s/noga</td><td>2 min</td><td class="cel">50cm + 20kg od Tygodnia 1. Pełny wyprost na górze. Bez pochylania tułowia. Metronom 94 bpm. Zapisuj wyniki.</td></tr>
+      <tr><td>Reverse Lunges</td><td>3×12/noga</td><td>90s</td><td></td></tr>
+      <tr><td>Calf Raises</td><td>4×20</td><td>60s</td><td>Profilaktyka Achillesa i rozcięgna</td></tr>
+      <tr><td>Siady z leżenia — PEŁNY ZAKRES z kotwiczeniem</td><td>4×2 min</td><td>3 min</td><td class="cel">Stopy kotwiczone. ŁOKCIE do podłoża w dole, łokcie do kolan w górze. Zapisuj wyniki co tydzień.</td></tr>
+      <tr><td>Dead Hang</td><td>3×max (cel: 60s+)</td><td>2 min</td><td>Siła chwytu pod linę bez nóg. Pronowany chwyt.</td></tr>
+      <tr><td>Towel Pull-ups</td><td>3×5</td><td>2 min</td><td>Ręcznik zarzucony na drążek. Ciągnij — buduje siłę chwytu specyficzną dla liny.</td></tr>
+      </table></div>
+      <div class="session-tag tag-sm" style="margin-top:8px">STAIR MASTER · 30 min Zone 2 po sile</div>
+      <p>HR 130–150. Przyspiesza regenerację nóg po step-upach.</p>
+    </div>
+
+    <h2>Piątek</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 06:00–07:30 · Push B + Siady (bez kotwiczenia)</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+      <tr><td>Incline Bench Press</td><td>4×10</td><td>2 min</td><td>@70% 1RM</td></tr>
+      <tr><td>Dipsy — cieńsza taśma</td><td>4×10</td><td>2 min</td><td>Barki poniżej łokci — trenuj z marginesem.</td></tr>
+      <tr><td>DB Flyes</td><td>3×12</td><td>90s</td><td></td></tr>
+      <tr><td>Arnold Press</td><td>3×10</td><td>2 min</td><td></td></tr>
+      <tr><td>Tricep Overhead Extension</td><td>3×12</td><td>90s</td><td></td></tr>
+      <tr><td>Siady z leżenia — bez kotwiczenia</td><td>3×max (cel: 30+)</td><td>2 min</td><td>Stopy pod ławką lub pod progiem drzwi. Pełny zakres. Drugi bodziec tygodniowy na siady.</td></tr>
+      </table></div>
+    </div>
+    <div class="card">
+      <div class="session-tag tag-pm">PM 18:30–20:00 · Conditioning + Lina (bez nóg) + Step-ups</div>
+      <p style="margin-bottom:6px">3 rundy, 4 min przerwy między rundami:</p>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Ilość</th><th>Uwagi</th></tr>
+      <tr><td>Burpees</td><td>12</td><td>Tempo rywalizacyjne</td></tr>
+      <tr><td>Military crawl</td><td>30m</td><td></td></tr>
+      <tr><td>Box jumps (40–50cm)</td><td>10</td><td></td></tr>
+      <tr><td>Lina bez nóg — partial climb</td><td>3× do 3m</td><td class="cel">BEZ NÓG. Powoli, kontrolowanie. Siła rąk. F1 = budowanie bazy siłowej chwytu.</td></tr>
+      <tr><td>KB Swings (24kg)</td><td>20</td><td></td></tr>
+      <tr><td>Sprint</td><td>100m @85%</td><td></td></tr>
+      <tr><td>Pull-ups (BW lub taśma)</td><td>max−2</td><td>Nie do fiaska. Jakość.</td></tr>
+      <tr><td>Step-ups z krążkiem 20kg, podest 50cm</td><td>1×2 min</td><td class="cel">Drugi bodziec tygodniowy. Pełny standard testowy. Zapisuj wynik.</td></tr>
+      </table></div>
+      <p style="margin-top:6px">Po conditioning: Hip Flexor Stretch 3×90s/str. · Pigeon Pose 3×90s/str. · Thoracic Rotation 3×10/str.</p>
+    </div>
+
+    <h2>Sobota</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 07:00–08:30 · Długi Bieg</div>
+      <p>Tyg 1: <strong>8 km</strong> Zone 2 → Tyg 2: <strong>10 km</strong> → Tyg 3: <strong>12 km</strong> · HR 130–150. Przy 119kg: marsz natychmiast gdy HR &gt;155 — nie forsuj. Stawy i rozcięgno ważniejsze niż dystans w F1.</p>
+    </div>
+    <div class="card">
+      <div class="session-tag tag-pm">PM 15:00–16:30 · Basen — Długi</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Blok</th><th>Dystans</th><th>Uwagi</th></tr>
+      <tr><td>Ciągłe pływanie</td><td>Tyg 1: 1600m · Tyg 2: 1900m · Tyg 3: 2200m</td><td>Zone 2 w wodzie. Licz długości.</td></tr>
+      <tr><td>Nurkowanie techniczne</td><td>3×max</td><td>Na końcu sesji. ASEKURACJA. Nie forsuj gdy zmęczony.</td></tr>
+      </table></div>
+      <p class="footnote">Min. 4h przerwy między biegiem a basenem. 1l wody + elektrolity między sesjami.</p>
+    </div>
+
+    <h2>Niedziela</h2>
+    <div class="card">
+      <div class="session-tag tag-note">Regeneracja aktywna</div>
+      <p>60 min joga/stretching · 20 min spacer · Meal prep · Sen min. 8h · Wizualizacja skoku z wieży 5 min</p>
+    </div>
+
+    <div class="sep"></div>
+    <h2>Cotygodniowe pomiary F1</h2>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Parametr</th><th>Tyg 1</th><th>Tyg 2</th><th>Tyg 3</th></tr>
+    <tr><td>Podciągania (bez asysty)</td><td>0–1 próba</td><td>1–3</td><td>5 cel</td></tr>
+    <tr><td>Nurkowanie dynamiczne</td><td>~18m baseline</td><td>20–21m</td><td>22m</td></tr>
+    <tr><td>CO2 wstrzymanie</td><td>30s×6 rund</td><td>40s×6</td><td>50s×7</td></tr>
+    <tr><td>200m kraul time trial</td><td>Baseline</td><td>−5s</td><td>−10s vs start</td></tr>
+    <tr><td>Sit-upy (2 min)</td><td>Baseline</td><td>+5</td><td>+8–10 vs start</td></tr>
+    <tr><td>Waga</td><td>115 kg</td><td>~112 kg</td><td>~109 kg</td></tr>
+    </table></div>
+    <div class="alert alert-warn">Sygnał alarmowy F1: ból kolan lub pięty &gt;3 dni z rzędu = bieg −30%, zastąp stair masterem. Nie ignoruj — kontuzja tu = koniec w listopadzie.</div>
+  </div>
+
+  <!-- ═══ FAZA 2 · Tygodnie 4–12 ═══ -->
+  <div id="fazy-f2" class="sub-section">
+    <div class="g4">
+      <div class="metric"><div class="l">Tygodnie</div><div class="n">4–12</div></div>
+      <div class="metric"><div class="l">Waga cel</div><div class="n">~106 kg</div></div>
+      <div class="metric"><div class="l">Podciąg. cel</div><div class="n">8–10</div></div>
+      <div class="metric"><div class="l">Nurkowanie cel</div><div class="n">23m</div></div>
+    </div>
+    <div class="alert alert-warn">Interwały biegowe przeniesione na środę rano. Wt/czw wieczór = wyłącznie siła i konkurencje. Od Tyg 10 (szac. waga ~110kg): plecak 5kg na stair masterze i biegu sobota. <strong>Tyg 8 = DELOAD: objętość −40%, intensywność utrzymana — bieg Zone 2, lżejsze serie siłowe.</strong></div>
+    <div class="alert alert-danger">PROGRESJA DIPS F2: Tyg 4–6 = maszyna odejmująca ~10kg · Tyg 7–9 = cieńsza taśma lub BW pierwsze próby · Tyg 10–12 = BW solidne serie. Weighted dips dopiero F3 gdy BW daje ≥15 pow. PROGRESJA PULL-UPS F2: Tyg 4–6 = cieńsza taśma · Tyg 7–9 = BW bez asysty · Tyg 10–12 = pierwsze weighted lekkie (−20kg odciążenie). NIE skracaj żadnej z tych progresji.</div>
+
+    <h2>Poniedziałek</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 06:00–07:30 · Push Ciężka (kontrolowana)</div>
+      <div class="alert alert-info" style="margin-top:6px">Wieczorem walki. Ciężej niż F1 ale nie do fiaska — zatrzymuj 1–2 pow. przed końcem każdej serii.</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+      <tr><td>Bench Press</td><td>5×3–5</td><td>3–4 min</td><td>@82–87% 1RM. +2,5kg co 2 tyg.</td></tr>
+      <tr><td>Dipsy (progresja — patrz alert F2)</td><td>4×6–8</td><td>3 min</td><td>Tyg 4–6: maszyna ~−10kg · Tyg 7–9: cieńsza taśma lub BW · Tyg 10–12: BW solidne. Pełny zakres. Barki poniżej łokci.</td></tr>
+      <tr><td>Push Press</td><td>3×6</td><td>3 min</td><td>@72% 1RM. Eksplozywna siła.</td></tr>
+      <tr><td>Incline DB Press</td><td>3×10</td><td>2 min</td><td></td></tr>
+      <tr><td>Face Pulls + Band Pull-aparts</td><td>3×20</td><td>60s</td><td>OBOWIĄZKOWE</td></tr>
+      </table></div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--red-text)">
+      <div class="session-tag tag-walki">PM 21:00–23:00 · Sztuki Walki</div>
+      <p>Lekki posiłek 19:00. Odpoczynek 19:00–20:45. Shake + banan 23:30. Magnez.</p>
+    </div>
+
+    <h2>Wtorek</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 07:00–08:00 · Basen (regeneracja po walce)</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Blok</th><th>Dystans/Serie</th><th>Przerwa</th><th>Cel</th></tr>
+      <tr><td>Rozgrzewka</td><td>200m</td><td>easy</td><td></td></tr>
+      <tr><td>Nurkowanie dynamiczne</td><td>5×max</td><td>4 min</td><td>Cel F2: 22–23m. ASEKURACJA! Wynurzenie jakiejkolwiek części ciała = dyskwalifikacja.</td></tr>
+      <tr><td>500m aerobic</td><td>1×500m</td><td>—</td><td>Regeneracja mięśni po walce</td></tr>
+      <tr><td>4×100m race pace</td><td>4×100m</td><td>90s</td><td>~1:05–1:10/100m</td></tr>
+      <tr><td>Nawroty techniczne</td><td>8×nawrot</td><td>30s</td><td>Od F2. Dotknij ścianę, odbij mocno, streamline 3m. Na 200m masz 3 nawroty — każdy zły to +2–3s.</td></tr>
+      </table></div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--green-text)">
+      <div class="session-tag tag-pm">PM 18:00–21:00 · Pull CIĘŻKA + Lina (bez nóg) + Dipsy + Siady + Stair Master</div>
+      <div class="alert alert-ok" style="margin-top:6px">Najcięższa sesja tygodnia. Pełne zasoby po regeneracji. Interwały biegowe przeniesione na środę rano — tutaj skupiamy się wyłącznie na sile i konkurencjach.</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+      <tr><td>Pull-ups (progresja — patrz niżej)</td><td>5×5–6</td><td>4 min</td><td>Nie schodź na ziemię między seriami.</td></tr>
+      <tr><td>Pendlay Row</td><td>5×6</td><td>3 min</td><td>@75% 1RM</td></tr>
+      <tr><td>Lat Pulldown (szeroki)</td><td>4×10</td><td>2 min</td><td></td></tr>
+      <tr><td>Bicep Curls</td><td>3×10</td><td>90s</td><td></td></tr>
+      <tr><td>Farmer's Carry (2×KB 24kg)</td><td>4×40m</td><td>60s</td><td></td></tr>
+      <tr><td>Lina bez nóg</td><td>Tyg 4–6: 3×3m · Tyg 7–9: 2×6m · Tyg 10–12: 2× symulacja testowa</td><td>4 min</td><td class="cel">BEZ NÓG. Przerwa min. 4 min między próbami. Buduj dystans tygodniowo.</td></tr>
+      <tr><td>Dipsy BW — wytrzymałościowe</td><td>2×max</td><td>3 min</td><td>Barki wyraźnie poniżej łokci. Nie schodź na ziemię.</td></tr>
+      <tr><td>Siady z leżenia z kotwiczeniem</td><td>4×2 min</td><td>3 min</td><td class="cel">Łokcie do podłoża w dole. Zapisuj wyniki co tydzień.</td></tr>
+      </table></div>
+      <div class="alert alert-info" style="margin-top:6px">Progresja pull-ups F2: Tyg 4–6 = cieńsza taśma (mniejsza asysta niż F1) · Tyg 7–9 = BW bez asysty · Tyg 10–12 = pierwsze weighted lekkie (−20kg kamizelka odciążająca). Nie skracaj progresji.</div>
+      <div class="session-tag tag-sm" style="margin-top:8px">STAIR MASTER · 30 min Zone 2 po sile</div>
+      <p>HR 130–150. Od Tyg 8 (deload): plecak 5 kg od Tyg 9. Nie skracaj.</p>
+    </div>
+
+    <h2>Środa</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 06:00–07:30 · Bieg Interwały (przeniesione z wtorku)</div>
+      <div class="alert alert-info" style="margin-top:6px">Wieczorem walki — intensywność biegu umiarkowana do wysokiej rano jest właściwa. Interwały przeniesione z wtorku wieczór żeby nie kumulować 3h+ w jednej sesji.</div>
+      <p><strong>Tyg nieparzyste (5,7,9,11):</strong> VO2max — 10 min rozgrzewka + 8×400m @tempo 5K (75s odp) + 10 min cool-down.</p>
+      <p style="margin-top:4px"><strong>Tyg parzyste (4,6,10,12):</strong> Fartlek — 10 min rozgrzewka + 6×(3 min twardo / 2 min łatwo) + 10 min cool-down.</p>
+      <p style="margin-top:4px"><strong>Tyg 8 (deload):</strong> tylko 30 min Zone 2 trucht — deload tydzień.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--red-text)">
+      <div class="session-tag tag-walki">PM 21:00–23:00 · Sztuki Walki</div>
+      <p>Identyczny protokół jak poniedziałek.</p>
+    </div>
+
+    <h2>Czwartek</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 07:00–08:00 · Basen</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Blok</th><th>Dystans/Serie</th><th>Przerwa</th><th>Cel</th></tr>
+      <tr><td>200m time trial</td><td>1×200m</td><td>—</td><td>Cel F2: ≤4:20</td></tr>
+      <tr><td>500m aerobic</td><td>1×500m</td><td>—</td><td></td></tr>
+      <tr><td>Nurkowanie dynamiczne</td><td>5×max</td><td>4 min</td><td>ASEKURACJA!</td></tr>
+      <tr><td>Glide practice</td><td>5×</td><td>2 min</td><td></td></tr>
+      </table></div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--green-text)">
+      <div class="session-tag tag-pm">PM 18:00–21:00 · Nogi + Siady + Stair Master</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+      <tr><td>Back Squat</td><td>5×6</td><td>3 min</td><td>@78% 1RM. Ciężej niż F1.</td></tr>
+      <tr><td>Deadlift</td><td>4×5</td><td>4 min</td><td>@80% 1RM</td></tr>
+      <tr><td>Step-ups z krążkiem 20kg, podest 50cm</td><td>4×45s/noga</td><td>2 min</td><td class="cel">50cm + 20kg. Pełny wyprost. Bez pochylania tułowia. Metronom 94 bpm. Zapisuj.</td></tr>
+      <tr><td>Reverse Lunges</td><td>3×12/noga</td><td>90s</td><td></td></tr>
+      <tr><td>Siady z leżenia z kotwiczeniem</td><td>4×2 min</td><td>3 min</td><td class="cel">Łokcie do podłoża w dole. Stopy kotwiczone. Zapisuj wyniki co tydzień.</td></tr>
+      <tr><td>Core circuit</td><td>3×45s</td><td>—</td><td>Plank / hollow body / leg raise</td></tr>
+      </table></div>
+      <div class="session-tag tag-sm" style="margin-top:8px">STAIR MASTER · 30 min Zone 2 po sile</div>
+      <p>Od Tyg 8: plecak 5 kg. HR 130–150.</p>
+    </div>
+
+    <h2>Piątek</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 06:00–07:30 · Bieg VO2max lub Fartlek</div>
+      <p><strong>Tyg nieparzyste (5,7,9,11):</strong> VO2max — 10 min rozgrzewka + 5×4 min @95% HRmax + 4 min marsz + 10 min cool-down.</p>
+      <p style="margin-top:4px"><strong>Tyg parzyste (4,6,8,10,12):</strong> Fartlek — 10 min rozgrzewka + 8×(3 min twardo / 2 min łatwo) + 10 min cool-down.</p>
+    </div>
+    <div class="card">
+      <div class="session-tag tag-pm">PM 18:30–20:00 · Conditioning + Lina (bez nóg) + Step-ups + Siady</div>
+      <p style="margin-bottom:5px">4 rundy, 4 min przerwy między rundami:</p>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Ilość</th><th>Uwagi</th></tr>
+      <tr><td>Burpees</td><td>12</td><td>Tempo rywalizacyjne</td></tr>
+      <tr><td>Military crawl</td><td>30m</td><td></td></tr>
+      <tr><td>Box jumps (50–60cm)</td><td>10</td><td>Eksplozywnie</td></tr>
+      <tr><td>Lina bez nóg</td><td>1 wejście</td><td class="cel">BEZ NÓG. Cel końca F2: pełne 6m. J-hook tylko jako technika toru — nie tutaj.</td></tr>
+      <tr><td>KB Swings (24kg)</td><td>25</td><td></td></tr>
+      <tr><td>Sprint</td><td>100m @85%</td><td></td></tr>
+      <tr><td>Pull-ups</td><td>12</td><td>Nie schodź na ziemię między seriami.</td></tr>
+      </table></div>
+      <p style="margin-top:5px">Po rundach (bez przerwy): <strong>Step-ups z 20kg, podest 50cm — 1×2 min</strong> · <strong>Siady bez kotwiczenia — 2×max</strong></p>
+    </div>
+
+    <h2>Sobota</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM · Długi Bieg</div>
+      <p><strong>Tyg 4–8:</strong> 14–16 km Zone 2</p>
+      <p style="margin-top:4px"><strong>Od Tyg 9 (co 2 tyg.):</strong> Back-to-back test: Bieg 12 min → 5 min odp → Podciąg. max → Dipsy → Siady 2 min → Step-ups 2 min. Zapisz wszystko.</p>
+      <p style="margin-top:4px"><strong>Od Tyg 8:</strong> Bieg z kamizelką 5 kg.</p>
+    </div>
+    <div class="card">
+      <div class="session-tag tag-pm">PM 15:00–16:30 · Basen Długi</div>
+      <p>1800–2400m ciągłe (Zone 2 w wodzie). +200m co tydzień. Bez nurkowania — czysta wytrzymałość tlenowa.</p>
+    </div>
+  </div>
+
+  <!-- ═══ FAZA 3 · Tygodnie 13–21 ═══ -->
+  <div id="fazy-f3" class="sub-section">
+    <div class="g4">
+      <div class="metric"><div class="l">Tygodnie</div><div class="n">13–21</div></div>
+      <div class="metric"><div class="l">Waga cel</div><div class="n">~100 kg</div></div>
+      <div class="metric"><div class="l">Podciąg. cel</div><div class="n">14–17</div></div>
+      <div class="metric"><div class="l">Nurkowanie cel</div><div class="n">24–25m</div></div>
+    </div>
+    <div class="alert alert-info">Kluczowe zmiany vs F2: Cluster sets na podciąganie we wtorek. Bieg interwały przeniesione na środę rano. Czw wieczór = cotygodniowa symulacja testów. Sob co 2 tyg = pełne 13 wydarzeń. Kamizelka 5kg w biegu. Stair master kontynuowany wt/czw. <strong>Tyg 16 = DELOAD: objętość −40%, intensywność utrzymana — bieg Zone 2 w środę, lżejsze serie siłowe przez cały tydzień.</strong></div>
+
+    <h2>Poniedziałek</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 06:00–07:30 · Push Ciężka (kontrolowana)</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+      <tr><td>Bench Press</td><td>4×4–6</td><td>3–4 min</td><td>@83–87% 1RM. Cel F3: 1RM 120–125kg</td></tr>
+      <tr><td>Weighted Dips (+15–20kg)</td><td>5×5–6</td><td>3 min</td><td></td></tr>
+      <tr><td>Push Press</td><td>3×5</td><td>3 min</td><td>Eksplozywność dla toru</td></tr>
+      <tr><td>Cable Chest Press (obj.)</td><td>3×15</td><td>90s</td><td>Wytrzymałość → testowe powtórzenia</td></tr>
+      <tr><td>Face Pulls + Band Pull-aparts</td><td>3×20</td><td>60s</td><td>OBOWIĄZKOWE</td></tr>
+      </table></div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--red-text)">
+      <div class="session-tag tag-walki">PM 21:00–23:00 · Sztuki Walki</div>
+      <p>Jak F2. Shake + banan 23:30. Magnez.</p>
+    </div>
+
+    <h2>Wtorek</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 07:00–08:00 · Basen Intensywny</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Blok</th><th>Dystans/Serie</th><th>Przerwa</th><th>Cel F3</th></tr>
+      <tr><td>Rozgrzewka</td><td>200m</td><td>easy</td><td></td></tr>
+      <tr><td>Race pace sets</td><td>6×50m</td><td>45s</td><td>Każde 50m ≤1:02.5s</td></tr>
+      <tr><td>CO2 zaawansowane</td><td>8 rund</td><td>30s odp.</td><td>2:00 wstrzym. Cel → 2:30</td></tr>
+      <tr><td>Nurkowanie dynamiczne</td><td>5×max</td><td>4 min min.</td><td>Cel: 22–24m. ASEKURACJA!</td></tr>
+      <tr><td>Cool-down</td><td>300m</td><td>easy</td><td></td></tr>
+      </table></div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--green-text)">
+      <div class="session-tag tag-pm">PM 18:00–21:00 · Pull CIĘŻKA + Cluster Sets + Lina + Dipsy + Siady + Stair Master</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Format</th><th>Przerwa</th><th>Uwagi</th></tr>
+      <tr><td>Pull-ups weighted (progresja F3)</td><td>4×4–5</td><td>4 min</td><td>Weighted od Tyg 13. Nie schodź na ziemię.</td></tr>
+      <tr><td>BW Pull-ups</td><td>4×(max−2)</td><td>3 min</td><td>Jakość absolutna</td></tr>
+      <tr><td>Cluster Sets Pull-ups</td><td>3×(3+2+2)</td><td>4 min</td><td>20s intra-set. 7 pow/serię.</td></tr>
+      <tr><td>Pendlay Rows</td><td>4×5</td><td>3 min</td><td>@82% 1RM</td></tr>
+      <tr><td>Lat Pulldown (wąski)</td><td>3×10</td><td>2 min</td><td></td></tr>
+      <tr><td>Face Pulls</td><td>3×20</td><td>60s</td><td></td></tr>
+      <tr><td>Lina bez nóg — symulacja testowa</td><td>3× (2 wejścia + zejście 5s)</td><td>4 min</td><td class="cel">Pełna symulacja: 2 wejścia 6m bez nóg, zejście w 5s. Timing każdego wejścia.</td></tr>
+      <tr><td>Dipsy BW — wytrzymałościowe</td><td>2×max</td><td>3 min</td><td>Barki wyraźnie poniżej łokci. Cel F3: ≥25 pow./serię.</td></tr>
+      <tr><td>Siady z leżenia z kotwiczeniem</td><td>4×2 min</td><td>3 min</td><td class="cel">Łokcie do podłoża. Zapisuj wyniki.</td></tr>
+      </table></div>
+      <div class="session-tag tag-sm" style="margin-top:8px">STAIR MASTER · 30 min Zone 2 po sile</div>
+      <p>Kamizelka 5kg kontynuowana.</p>
+    </div>
+
+    <h2>Środa</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 06:00–07:30 · Bieg Interwały lub Tempo (przeniesione z wtorku)</div>
+      <div class="alert alert-info" style="margin-top:6px">Wieczorem walki — bieg rano jest właściwy, nie kumuluje zmęczenia siłowego z wieczorną sesją.</div>
+      <p><strong>Tyg nieparzyste (13,15,17,19,21):</strong> VO2max — 10 min rozgrzewka + 5×4 min @95% HRmax + 4 min marsz + 10 min cool-down.</p>
+      <p style="margin-top:4px"><strong>Tyg parzyste (14,16,18,20):</strong> Tempo z kamizelką 5kg — 10 min rozgrzewka + 30–35 min Zone 3 + 10 min cool-down.</p>
+      <p style="margin-top:4px"><strong>Tyg 16 (deload):</strong> tylko 30 min Zone 2 trucht bez kamizelki — deload tydzień.</p>
+    </div>
+    <div class="card" style="border-left:3px solid var(--red-text)">
+      <div class="session-tag tag-walki">PM 21:00–23:00 · Sztuki Walki</div>
+    </div>
+
+    <h2>Czwartek</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 07:00–08:00 · Basen Race Pace + Nurkowanie</div>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Blok</th><th>Dystans/Serie</th><th>Przerwa</th><th>Cel</th></tr>
+      <tr><td>200m time trial</td><td>1×200m</td><td>—</td><td>Cel F3: ≤4:15</td></tr>
+      <tr><td>4×100m race pace</td><td>4×100m</td><td>90s</td><td>~1:03/100m</td></tr>
+      <tr><td>Nurkowanie dynamiczne</td><td>5×max</td><td>4 min</td><td>Cel stały: 24m. Push for 25m od Tyg 18.</td></tr>
+      <tr><td>Statyczne max</td><td>1×max</td><td>—</td><td>ASEKURACJA. Raz tygodniowo.</td></tr>
+      </table></div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--amber-text)">
+      <div class="session-tag tag-pm">PM 18:00–21:00 · COTYGODNIOWA SYMULACJA TESTÓW + Stair Master</div>
+      <p style="margin-bottom:6px">To nie jest trening siłowy. To są dane. <strong>5 min pełnego odpoczynku</strong> między każdym wydarzeniem. Zapisuj KAŻDY wynik.</p>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Konkurencja</th><th>Format</th><th>Standard</th><th>Zapisujesz</th></tr>
+      <tr><td>Wycisk × aktualna waga</td><td>1 max set</td><td>Bez odbijania. Stopy i pośladki na ławce przez cały czas.</td><td>Liczba pow.</td></tr>
+      <tr><td>Podciągania</td><td>1 max set</td><td>Pronowany. Bez kippingu. Nie schodź na ziemię.</td><td>Liczba pow.</td></tr>
+      <tr><td>Dipsy</td><td>1 max set</td><td>Barki poniżej łokci. Nie schodź na ziemię.</td><td>Liczba pow.</td></tr>
+      <tr><td>Siady</td><td>2 min pełne</td><td class="cel">ŁOKCIE do podłoża w dole. Łokcie do kolan w górze. Stopy kotwiczone.</td><td>Liczba pow.</td></tr>
+      <tr><td>Wejścia na podest</td><td>2 min pełne</td><td class="cel">Podest 50cm. Krążek 20kg. Pełny wyprost. Bez pochylania.</td><td>Liczba pow.</td></tr>
+      </table></div>
+      <div class="session-tag tag-sm" style="margin-top:8px">STAIR MASTER · 30 min Zone 2 po symulacji</div>
+      <p class="footnote">Kamienie milowe F3: Podciąg ≥15 · Wycisk ×BW ≥10 · Siady ≥90/2min · Step-ups ≥40/2min (50cm+20kg)</p>
+    </div>
+
+    <h2>Piątek</h2>
+    <div class="card">
+      <div class="session-tag tag-am">AM 06:00–07:30 · Bieg — Test lub Fartlek</div>
+      <p><strong>Tyg 15, 18, 21:</strong> Test 12-minutowy — pełny wysiłek. Cel: Tyg 15 → 2800m · Tyg 18 → 3000m · Tyg 21 → 3100m</p>
+      <p style="margin-top:4px"><strong>Pozostałe:</strong> Fartlek VO2max — 10 min rozgrzewka + 6×(3 min twardo / 2 min łatwo) + 10 min cool-down</p>
+    </div>
+    <div class="card">
+      <div class="session-tag tag-pm">PM 18:30–20:00 · Conditioning Zaawansowany + Lina + Siady + Step-ups</div>
+      <p style="margin-bottom:5px">4 rundy, 5 min przerwy:</p>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Ilość</th><th>Uwagi</th></tr>
+      <tr><td>Burpees</td><td>10</td><td></td></tr>
+      <tr><td>Military crawl</td><td>20m</td><td></td></tr>
+      <tr><td>Box jumps (60–70cm)</td><td>10</td><td></td></tr>
+      <tr><td>Lina bez nóg</td><td>1 wejście pełne 6m</td><td class="cel">BEZ NÓG. Obowiązkowe od Tyg 13. J-hook tylko na torze.</td></tr>
+      <tr><td>KB Swings (24kg)</td><td>30</td><td></td></tr>
+      <tr><td>Sprint</td><td>200m @85%</td><td></td></tr>
+      <tr><td>Pull-ups</td><td>10</td><td>Nie schodź na ziemię między seriami.</td></tr>
+      </table></div>
+      <p style="margin-top:5px">Po rundach: <strong>Siady bez kotwiczenia — 3×max</strong> · <strong>Step-ups 20kg, 50cm — 1×2 min</strong> (zapisuj wynik)</p>
+    </div>
+
+    <h2>Sobota</h2>
+    <div class="card">
+      <p><strong>Tyg 15,17,19,21 — PEŁNA SYMULACJA 13 WYDARZEŃ:</strong></p>
+      <div class="tbl-wrap"><table class="tbl"><tr><th>Kolejność</th><th>Przerwa</th><th>Co zapisujesz</th></tr>
+      <tr><td>Pływanie 200m kraul</td><td>10 min</td><td>Czas</td></tr>
+      <tr><td>Nurkowanie 25m (próba)</td><td>10 min</td><td>Dystans</td></tr>
+      <tr><td>Skok z wieży</td><td>5 min</td><td>Zalicz/nie</td></tr>
+      <tr><td>Wspinanie liny</td><td>10 min</td><td>Zalicz/nie</td></tr>
+      <tr><td>Bieg 12 min</td><td>10 min</td><td>Dystans</td></tr>
+      <tr><td>Wycisk × BW</td><td>5 min</td><td>Pow.</td></tr>
+      <tr><td>Podciągania</td><td>5 min</td><td>Pow.</td></tr>
+      <tr><td>Dipsy</td><td>5 min</td><td>Pow.</td></tr>
+      <tr><td>Siady 2 min</td><td>5 min</td><td>Pow.</td></tr>
+      <tr><td>Step-ups 2 min</td><td>—</td><td>Pow.</td></tr>
+      </table></div>
+      <p><strong>Tyg 14,16,18,20:</strong> Długi bieg 14 km Zone 2 (z kamizelką 5kg)</p>
+    </div>
+  </div>
+
+  <!-- ═══ FAZA 4 · Tygodnie 22–29 ═══ -->
+  <div id="fazy-f4" class="sub-section">
+    <div class="g4">
+      <div class="metric"><div class="l">Tygodnie</div><div class="n">22–29</div></div>
+      <div class="metric"><div class="l">Waga cel</div><div class="n">~95 kg</div></div>
+      <div class="metric"><div class="l">Podciąg. cel</div><div class="n">23+</div></div>
+      <div class="metric"><div class="l">Nurkowanie cel</div><div class="n">25m+</div></div>
+    </div>
+    <div class="alert alert-info">Taper: objętość spada −20% (Tyg 22–24) → −35% (Tyg 25–26) → −50% (Tyg 27) → minimum (Tyg 28+). Intensywność UTRZYMANA do Tyg 27 — siła nie spada w krótkim taperze (Bosquet et al. 2007: max −3%). Sztuki walki kończą się po Tyg 24. Cel: wejść na testy w pełni wypoczętym z naładowanym glikogenem.</div>
+
+    <!-- ─── TYG 22–24 ─── -->
+    <div class="nav-sub" style="padding-left:0;margin-bottom:4px">
+      <button class="on" onclick="showF4('f4a',this)" style="font-size:11px">Tyg 22–24 (−20%)</button>
+      <button onclick="showF4('f4b',this)" style="font-size:11px">Tyg 25–26 (−35%)</button>
+      <button onclick="showF4('f4c',this)" style="font-size:11px">Tyg 27 (−50%)</button>
+      <button onclick="showF4('f4d',this)" style="font-size:11px">Tyg 28+ (pre-test)</button>
+    </div>
+
+    <div id="f4a" class="f4-block">
+      <div class="alert alert-warn">Sztuki walki trwają do końca Tyg 24. Pon/śr nadal mają walki wieczorem — identyczna logika jak F3. Objętość spada o 20%: jedna seria mniej w każdym ćwiczeniu siłowym, bieg krótszy o 20%. Intensywność bez zmian.</div>
+
+      <h2>Poniedziałek</h2>
+      <div class="card">
+        <div class="session-tag tag-am">AM 06:00–07:15 · Push (−20% objętości)</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+        <tr><td>Bench Press</td><td>3×5</td><td>3 min</td><td>@85% 1RM. Intensywność utrzymana, seria mniej.</td></tr>
+        <tr><td>Weighted Dips (+15–20kg)</td><td>3×6–8</td><td>3 min</td><td>Pełny zakres.</td></tr>
+        <tr><td>Incline DB Press</td><td>2×10</td><td>2 min</td><td></td></tr>
+        <tr><td>Face Pulls + Band Pull-aparts</td><td>3×20</td><td>60s</td><td>OBOWIĄZKOWE — nie odpuszczaj profilaktyki</td></tr>
+        </table></div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--red-text)">
+        <div class="session-tag tag-walki">PM 21:00–23:00 · Sztuki Walki</div>
+        <p>Jak dotychczas. Shake + banan 23:30. Magnez.</p>
+      </div>
+
+      <h2>Wtorek</h2>
+      <div class="card">
+        <div class="session-tag tag-am">AM 07:00–08:00 · Basen — Priorytet: wynik czasowy</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Blok</th><th>Dystans/Serie</th><th>Przerwa</th><th>Cel</th></tr>
+        <tr><td>Rozgrzewka</td><td>200m</td><td>easy</td><td></td></tr>
+        <tr><td>200m time trial</td><td>1×200m</td><td>—</td><td>Zapisz. To jest pomiar gotowości.</td></tr>
+        <tr><td>Race pace sets</td><td>4×50m</td><td>45s</td><td>Każde 50m w tempie docelowym</td></tr>
+        <tr><td>Nurkowanie dynamiczne</td><td>3×max</td><td>4 min</td><td>Cel: 25m. ASEKURACJA!</td></tr>
+        <tr><td>Cool-down</td><td>200m</td><td>easy</td><td></td></tr>
+        </table></div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--green-text)">
+        <div class="session-tag tag-pm">PM 18:00–20:30 · Pull + Bieg VO2max + Stair Master</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+        <tr><td>Weighted Pull-ups (−15kg)</td><td>3×4</td><td>4 min</td><td>Intensywność utrzymana. Seria mniej niż F3.</td></tr>
+        <tr><td>BW Pull-ups</td><td>3×(max−2)</td><td>3 min</td><td>Jakość absolutna. Nie do fiaska.</td></tr>
+        <tr><td>Pendlay Rows</td><td>3×6</td><td>3 min</td><td>@82% 1RM</td></tr>
+        <tr><td>Lat Pulldown</td><td>2×10</td><td>2 min</td><td></td></tr>
+        </table></div>
+        <p style="margin:6px 0 3px"><strong>Bieg VO2max po sile (bez kamizelki):</strong> 10 min rozgrzewka + 4×4 min @95% HRmax + 4 min marsz + 10 min cool-down.</p>
+        <div class="session-tag tag-sm" style="margin-top:8px">STAIR MASTER · 20 min Zone 2 po biegu</div>
+        <p>Bez kamizelki. HR 130–150.</p>
+      </div>
+
+      <h2>Środa</h2>
+      <div class="card">
+        <div class="session-tag tag-am">AM 06:00–07:15 · Pull (−20% objętości, kontrolowane)</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+        <tr><td>Weighted Pull-ups (−15kg)</td><td>3×4</td><td>4 min</td><td>Wieczorem walki — nie do fiaska.</td></tr>
+        <tr><td>BW Pull-ups</td><td>3×(max−2)</td><td>3 min</td><td>Bez cluster sets w F4.</td></tr>
+        <tr><td>Pendlay Rows</td><td>3×6</td><td>3 min</td><td>@80% 1RM</td></tr>
+        <tr><td>Face Pulls</td><td>3×20</td><td>60s</td><td>OBOWIĄZKOWE</td></tr>
+        </table></div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--red-text)">
+        <div class="session-tag tag-walki">PM 21:00–23:00 · Sztuki Walki</div>
+        <p>Ostatnie tygodnie walki. Shake + banan 23:30. Magnez.</p>
+      </div>
+
+      <h2>Czwartek</h2>
+      <div class="card">
+        <div class="session-tag tag-am">AM 07:00–08:00 · Basen</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Blok</th><th>Dystans/Serie</th><th>Przerwa</th><th>Cel</th></tr>
+        <tr><td>200m time trial</td><td>1×200m</td><td>—</td><td>Zapisz. Porównaj z wtorkiem.</td></tr>
+        <tr><td>3×100m race pace</td><td>3×100m</td><td>90s</td><td>~1:03/100m</td></tr>
+        <tr><td>Nurkowanie dynamiczne</td><td>4×max</td><td>4 min</td><td>Cel: 25m stale. ASEKURACJA!</td></tr>
+        <tr><td>Cool-down</td><td>200m</td><td>easy</td><td></td></tr>
+        </table></div>
+      </div>
+      <div class="card" style="border-left:3px solid var(--amber-text)">
+        <div class="session-tag tag-pm">PM 18:00–20:30 · COTYGODNIOWA SYMULACJA + opcjonalnie Bieg 12 min + Stair Master</div>
+        <div class="alert alert-warn" style="margin-top:6px">To są dane — nie trening siłowy. 5 min pełnego odpoczynku między każdym wydarzeniem. Zapisuj KAŻDY wynik.</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Konkurencja</th><th>Format</th><th>Zapisujesz</th></tr>
+        <tr><td>Wycisk × aktualna waga</td><td>1 max set</td><td>Liczba pow.</td></tr>
+        <tr><td>Podciągania</td><td>1 max set</td><td>Liczba pow.</td></tr>
+        <tr><td>Dipsy</td><td>1 max set</td><td>Liczba pow.</td></tr>
+        <tr><td>Siady</td><td>2 min pełne</td><td>Liczba pow.</td></tr>
+        <tr><td>Wejścia na podest</td><td>2 min pełne</td><td>Liczba pow.</td></tr>
+        <tr><td>Bieg 12 min</td><td>Co 2 tygodnie (Tyg 22, 24)</td><td>Dystans w metrach</td></tr>
+        </table></div>
+        <div class="session-tag tag-sm" style="margin-top:8px">STAIR MASTER · 20 min Zone 2 po symulacji</div>
+        <p>Aktywna regeneracja po symulacji. HR 130–145.</p>
+      </div>
+
+      <h2>Piątek</h2>
+      <div class="card">
+        <div class="session-tag tag-am">AM 06:00–07:00 · Bieg Tempo (bez kamizelki)</div>
+        <p>10 min rozgrzewka → 20 min tempo Zone 3 (RPE 7/10, bez kamizelki) → 10 min cool-down.</p>
+        <p style="margin-top:4px">Krótszy niż F3. Intensywność utrzymana — objętość zmniejszona.</p>
+      </div>
+      <div class="card">
+        <div class="session-tag tag-pm">PM 18:30–19:30 · Conditioning (2 rundy)</div>
+        <p style="margin-bottom:5px">2 rundy, 5 min przerwy. Połowa objętości vs F3.</p>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Ilość</th><th>Uwagi</th></tr>
+        <tr><td>Burpees</td><td>10</td><td>Pełne tempo</td></tr>
+        <tr><td>Military crawl</td><td>20m</td><td></td></tr>
+        <tr><td>Box jumps (60cm)</td><td>8</td><td></td></tr>
+        <tr><td>Rope climb</td><td>1 wejście</td><td>Maintenance — nie forsuj</td></tr>
+        <tr><td>KB Swings (24kg)</td><td>20</td><td></td></tr>
+        <tr><td>Sprint</td><td>100m @85%</td><td></td></tr>
+        <tr><td>Pull-ups</td><td>8</td><td></td></tr>
+        </table></div>
+      </div>
+
+      <h2>Sobota</h2>
+      <div class="card" style="border-left:3px solid var(--amber-text)">
+        <div class="session-tag tag-am">AM · PEŁNA SYMULACJA 13 WYDARZEŃ — co tydzień</div>
+        <div class="alert alert-ok" style="margin-top:6px">Co tydzień w F4 — nie co 2 tygodnie jak w F3. Cel: kalibracja psychofizyczna, eliminacja niespodzianek w dniu testów.</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Kolejność</th><th>Przerwa</th><th>Co zapisujesz</th></tr>
+        <tr><td>Pływanie 200m kraul</td><td>10 min</td><td>Czas</td></tr>
+        <tr><td>Nurkowanie 25m (próba)</td><td>10 min</td><td>Dystans</td></tr>
+        <tr><td>Skok z wieży</td><td>5 min</td><td>Zalicz/nie</td></tr>
+        <tr><td>Wspinanie liny</td><td>10 min</td><td>Zalicz/nie</td></tr>
+        <tr><td>Bieg 12 min</td><td>10 min</td><td>Dystans w metrach</td></tr>
+        <tr><td>Wycisk × BW</td><td>5 min</td><td>Pow.</td></tr>
+        <tr><td>Podciągania</td><td>5 min</td><td>Pow.</td></tr>
+        <tr><td>Dipsy</td><td>5 min</td><td>Pow.</td></tr>
+        <tr><td>Siady 2 min</td><td>5 min</td><td>Pow.</td></tr>
+        <tr><td>Step-ups 2 min</td><td>—</td><td>Pow.</td></tr>
+        </table></div>
+      </div>
+
+      <h2>Niedziela</h2>
+      <div class="card">
+        <div class="session-tag tag-note">Regeneracja aktywna</div>
+        <p>60 min stretching/joga · 20 min spacer · Wizualizacja skoku z wieży 10 min · Sen 8–9h</p>
+      </div>
+      <div class="card"><p><strong>Kamienie milowe Tyg 22–24:</strong> Podciąg ≥18 · Wycisk ×BW ≥12 · Bieg ≥3000m · Siady ≥95 · Step-ups ≥45 · Nurkowanie 24m</p></div>
+    </div>
+
+    <!-- ─── TYG 25–26 ─── -->
+    <div id="f4b" class="f4-block" style="display:none">
+      <div class="alert alert-ok">Sztuki walki zakończone. Priorytet: regeneracja i sen ≥8h każdej nocy. Objętość −35% vs F3. Intensywność utrzymana.</div>
+
+      <h2>Poniedziałek</h2>
+      <div class="card">
+        <div class="session-tag tag-am">AM 06:00–07:00 · Push (minimalna)</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+        <tr><td>Bench Press</td><td>2×5</td><td>3 min</td><td>@82% 1RM. Tylko podtrzymanie siły — nie budowanie.</td></tr>
+        <tr><td>Weighted Dips (+15kg)</td><td>2×8</td><td>3 min</td><td>Pełny zakres.</td></tr>
+        <tr><td>Face Pulls</td><td>2×20</td><td>60s</td><td>OBOWIĄZKOWE</td></tr>
+        </table></div>
+      </div>
+      <div class="card">
+        <div class="session-tag tag-note">PM — BRAK sesji wieczornej</div>
+        <p>Walki zakończone. Wieczór = odpoczynek, posiłek węglowodanowy, sen.</p>
+      </div>
+
+      <h2>Wtorek</h2>
+      <div class="card">
+        <div class="session-tag tag-am">AM 07:00–08:00 · Basen — wynik czasowy</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Blok</th><th>Dystans/Serie</th><th>Przerwa</th><th>Cel</th></tr>
+        <tr><td>Rozgrzewka</td><td>200m</td><td>easy</td><td></td></tr>
+        <tr><td>200m time trial</td><td>1×200m</td><td>—</td><td>Zapisz. Cel: ≤4:10.</td></tr>
+        <tr><td>Race pace sets</td><td>4×50m</td><td>45s</td><td>Pełne tempo testowe</td></tr>
+        <tr><td>Nurkowanie dynamiczne</td><td>3×max</td><td>4 min</td><td>Cel: 25m. ASEKURACJA!</td></tr>
+        <tr><td>Cool-down</td><td>200m</td><td>easy</td><td></td></tr>
+        </table></div>
+      </div>
+      <div class="card">
+        <div class="session-tag tag-pm">PM 18:00–20:00 · Pull + Bieg VO2max</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+        <tr><td>BW Pull-ups</td><td>5×(max−2)</td><td>3 min</td><td>Bez dodatkowego obciążenia. Jakość.</td></tr>
+        <tr><td>Cluster Sets Pull-ups</td><td>2×(3+2+2)</td><td>4 min</td><td>20s intra-set. Utrzymanie adaptacji nerwowej.</td></tr>
+        </table></div>
+        <p style="margin:6px 0 3px"><strong>Bieg VO2max po sile:</strong> 10 min rozgrzewka + 3×4 min @95% HRmax + 4 min marsz + 10 min cool-down.</p>
+      </div>
+
+      <h2>Środa</h2>
+      <div class="card">
+        <div class="session-tag tag-am">AM 06:00–07:00 · Pull (minimalna)</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+        <tr><td>BW Pull-ups</td><td>4×(max−2)</td><td>3 min</td><td>Bez dodatkowego obciążenia.</td></tr>
+        <tr><td>Cluster Sets Pull-ups</td><td>2×(3+2+2)</td><td>4 min</td><td>Utrzymanie specyficznej adaptacji nerwowej.</td></tr>
+        <tr><td>Face Pulls</td><td>2×20</td><td>60s</td><td>OBOWIĄZKOWE</td></tr>
+        </table></div>
+      </div>
+      <div class="card">
+        <div class="session-tag tag-note">PM — BRAK sesji wieczornej</div>
+        <p>Odpoczynek, odżywienie, sen.</p>
+      </div>
+
+      <h2>Czwartek</h2>
+      <div class="card">
+        <div class="session-tag tag-note">AM — BRAK</div>
+        <p>Pełna regeneracja przed symulacją wieczorną.</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--amber-text)">
+        <div class="session-tag tag-pm">PM 18:00–19:30 · Pełna Symulacja 5 Ćwiczeń</div>
+        <div class="alert alert-warn" style="margin-top:6px">5 min pełnego odpoczynku między każdym wydarzeniem. Pełny wysiłek. Zapisuj.</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Konkurencja</th><th>Format</th><th>Zapisujesz</th></tr>
+        <tr><td>Wycisk × aktualna waga</td><td>1 max set</td><td>Liczba pow.</td></tr>
+        <tr><td>Podciągania</td><td>1 max set</td><td>Liczba pow.</td></tr>
+        <tr><td>Dipsy</td><td>1 max set</td><td>Liczba pow.</td></tr>
+        <tr><td>Siady</td><td>2 min pełne</td><td>Liczba pow.</td></tr>
+        <tr><td>Wejścia na podest</td><td>2 min pełne</td><td>Liczba pow.</td></tr>
+        </table></div>
+      </div>
+
+      <h2>Piątek</h2>
+      <div class="card">
+        <div class="session-tag tag-am">AM 06:00–06:30 · Lekki jogging</div>
+        <p>15 min easy jog Zone 1–2. HR max 140. Aktywacja bez zmęczenia.</p>
+      </div>
+      <div class="card">
+        <div class="session-tag tag-pm">PM 18:30–19:15 · 1 runda conditioning</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Ilość</th><th>Uwagi</th></tr>
+        <tr><td>Burpees</td><td>10</td><td>Pełne tempo</td></tr>
+        <tr><td>Military crawl</td><td>20m</td><td></td></tr>
+        <tr><td>Box jumps (60cm)</td><td>8</td><td></td></tr>
+        <tr><td>Rope climb</td><td>1 wejście</td><td>Maintenance</td></tr>
+        <tr><td>KB Swings (24kg)</td><td>15</td><td></td></tr>
+        <tr><td>Sprint</td><td>80m @80%</td><td></td></tr>
+        <tr><td>Pull-ups</td><td>6</td><td></td></tr>
+        </table></div>
+      </div>
+
+      <h2>Sobota</h2>
+      <div class="card" style="border-left:3px solid var(--amber-text)">
+        <div class="session-tag tag-am">AM · PEŁNA SYMULACJA 13 WYDARZEŃ</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Kolejność</th><th>Przerwa</th><th>Co zapisujesz</th></tr>
+        <tr><td>Pływanie 200m kraul</td><td>10 min</td><td>Czas</td></tr>
+        <tr><td>Nurkowanie 25m</td><td>10 min</td><td>Dystans</td></tr>
+        <tr><td>Skok z wieży</td><td>5 min</td><td>Zalicz/nie</td></tr>
+        <tr><td>Wspinanie liny</td><td>10 min</td><td>Zalicz/nie</td></tr>
+        <tr><td>Bieg 12 min</td><td>10 min</td><td>Dystans</td></tr>
+        <tr><td>Wycisk × BW</td><td>5 min</td><td>Pow.</td></tr>
+        <tr><td>Podciągania</td><td>5 min</td><td>Pow.</td></tr>
+        <tr><td>Dipsy</td><td>5 min</td><td>Pow.</td></tr>
+        <tr><td>Siady 2 min</td><td>5 min</td><td>Pow.</td></tr>
+        <tr><td>Step-ups 2 min</td><td>—</td><td>Pow.</td></tr>
+        </table></div>
+      </div>
+
+      <h2>Niedziela</h2>
+      <div class="card">
+        <div class="session-tag tag-note">Regeneracja aktywna</div>
+        <p>60 min mobilność · 20 min spacer · Sen 8–9h · Wizualizacja każdej konkurencji 10 min</p>
+      </div>
+      <div class="card"><p><strong>Kamienie milowe Tyg 25–26:</strong> Podciąg ≥20 · Wycisk ×BW ≥13 · Bieg ≥3100m · Siady ≥97 · Nurkowanie 25m · Lina pełna</p></div>
+    </div>
+
+    <!-- ─── TYG 27 ─── -->
+    <div id="f4c" class="f4-block" style="display:none">
+      <div class="alert alert-danger">Objętość −50% vs F3. Intensywność nadal utrzymana ale każda sesja krótka. Cel tygodnia: przychodzić na każdą sesję wypoczętym i wychodzić bez zmęczenia. Żadnego heroizmu.</div>
+
+      <h2>Poniedziałek</h2>
+      <div class="card">
+        <div class="session-tag tag-am">AM 06:00–06:30 · Siła — podtrzymanie</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+        <tr><td>Bench Press</td><td>2×5</td><td>3 min</td><td>@80% 1RM. Czujesz siłę — to dobry znak.</td></tr>
+        <tr><td>Weighted Dips (+10kg)</td><td>2×8</td><td>3 min</td><td></td></tr>
+        <tr><td>BW Pull-ups</td><td>3×(max−3)</td><td>3 min</td><td>Zostaw 3 pow. w zapasie. Zawsze.</td></tr>
+        </table></div>
+      </div>
+      <div class="card">
+        <div class="session-tag tag-note">PM — BRAK</div>
+        <p>Odpoczynek, jedzenie, sen.</p>
+      </div>
+
+      <h2>Wtorek</h2>
+      <div class="card">
+        <div class="session-tag tag-am">AM 07:00–08:00 · Basen — podtrzymanie</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Blok</th><th>Dystans/Serie</th><th>Przerwa</th><th>Cel</th></tr>
+        <tr><td>Rozgrzewka</td><td>200m</td><td>easy</td><td></td></tr>
+        <tr><td>200m time trial</td><td>1×200m</td><td>—</td><td>Ostatni pomiar przed testami. Zapisz.</td></tr>
+        <tr><td>Nurkowanie dynamiczne</td><td>2×max</td><td>4 min</td><td>Tylko 2 próby. ASEKURACJA!</td></tr>
+        <tr><td>Cool-down</td><td>200m</td><td>easy</td><td></td></tr>
+        </table></div>
+      </div>
+      <div class="card">
+        <div class="session-tag tag-note">PM — BRAK</div>
+        <p>Odpoczynek.</p>
+      </div>
+
+      <h2>Środa</h2>
+      <div class="card">
+        <div class="session-tag tag-am">AM 06:00–06:45 · Pull + Mobilność</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+        <tr><td>BW Pull-ups</td><td>3×(max−3)</td><td>3 min</td><td>Zostaw 3 pow. w zapasie.</td></tr>
+        <tr><td>Face Pulls</td><td>2×20</td><td>60s</td><td></td></tr>
+        <tr><td>Mobilność całego ciała</td><td>20 min</td><td>—</td><td>Biodra, barki, klatka piersiowa, łydki.</td></tr>
+        </table></div>
+      </div>
+      <div class="card">
+        <div class="session-tag tag-note">PM — BRAK</div>
+      </div>
+
+      <h2>Czwartek</h2>
+      <div class="card">
+        <div class="session-tag tag-note">AM — BRAK</div>
+        <p>Pełna regeneracja przed symulacją.</p>
+      </div>
+      <div class="card" style="border-left:3px solid var(--amber-text)">
+        <div class="session-tag tag-pm">PM 18:00–19:30 · Symulacja @70–80% intensywności</div>
+        <div class="alert alert-warn" style="margin-top:6px">NIE pełny wysiłek — ~70–80% maksimum. Cel: przejść przez sekwencję, poczuć rytm, nie zmęczyć się. 5 min przerwy między ćwiczeniami.</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Konkurencja</th><th>Format</th><th>Uwagi</th></tr>
+        <tr><td>Wycisk × aktualna waga</td><td>Do ~70–80% Twojego max</td><td>Np. jeśli max = 14, zrób 10–11.</td></tr>
+        <tr><td>Podciągania</td><td>Do ~70–80% max</td><td>Np. jeśli max = 20, zrób 14–16.</td></tr>
+        <tr><td>Dipsy</td><td>Do ~70–80% max</td><td></td></tr>
+        <tr><td>Siady</td><td>90s zamiast 2 min</td><td>Krótszy czas — nie maksymalny wysiłek.</td></tr>
+        <tr><td>Wejścia na podest</td><td>90s zamiast 2 min</td><td></td></tr>
+        </table></div>
+      </div>
+
+      <h2>Piątek</h2>
+      <div class="card">
+        <div class="session-tag tag-am">AM 06:00–06:30 · Lekki jogging + stretching</div>
+        <p>10–15 min easy jog Zone 1. HR max 130. Potem 20 min statyczny stretching całego ciała.</p>
+      </div>
+      <div class="card">
+        <div class="session-tag tag-note">PM — BRAK</div>
+      </div>
+
+      <h2>Sobota</h2>
+      <div class="card">
+        <div class="session-tag tag-note">Spacer aktywny + Wizualizacja</div>
+        <p>30 min spokojny spacer. Następnie 15–20 min wizualizacja: przejdź mentalnie przez każdą z 13 konkurencji w kolejności testowej. Wyobraź sobie każdy ruch, oddech, tempo.</p>
+      </div>
+
+      <h2>Niedziela</h2>
+      <div class="card">
+        <div class="session-tag tag-note">PEŁNY ODPOCZYNEK</div>
+        <p>Zero treningu. Pełne odżywienie — normalne makro. Sen 9h. Meal prep na tydzień przed testami.</p>
+      </div>
+    </div>
+
+    <!-- ─── TYG 28+ · PRE-TEST ─── -->
+    <div id="f4d" class="f4-block" style="display:none">
+      <div class="alert alert-danger">Brak treningu 48–72h przed testami. Wejść wypoczętym, nawodnionym, z pełnym glikogenem mięśniowym i wątrobowym. Każdy dzień ma przypisaną dietę — przestrzegaj.</div>
+
+      <h2>D-7 (Poniedziałek)</h2>
+      <div class="card">
+        <div class="session-tag tag-am">AM · Ostatni kontakt z ciężarami</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie×Pow.</th><th>Przerwa</th><th>Uwagi</th></tr>
+        <tr><td>Bench Press</td><td>1×5</td><td>3 min</td><td>@70% 1RM. Cel: poczuć ruch, nie zmęczyć.</td></tr>
+        <tr><td>BW Pull-ups</td><td>1×5</td><td>—</td><td>Lekko. Jakość.</td></tr>
+        <tr><td>Spacer</td><td>15 min</td><td>—</td><td>Zone 1.</td></tr>
+        </table></div>
+        <p style="margin-top:6px"><strong>Dieta:</strong> Normalne makro.</p>
+      </div>
+
+      <h2>D-6 (Wtorek)</h2>
+      <div class="card">
+        <div class="session-tag tag-am">AM · Ostatni kontakt z wodą</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Blok</th><th>Dystans</th><th>Uwagi</th></tr>
+        <tr><td>Lekki jogging</td><td>15 min easy</td><td>Zone 1. HR max 130.</td></tr>
+        <tr><td>Basen easy</td><td>300m</td><td>Spokojne pływanie. Bez nurkowania. Poczuj wodę.</td></tr>
+        </table></div>
+        <p style="margin-top:6px"><strong>Dieta:</strong> +50g węgli ponad normę.</p>
+      </div>
+
+      <h2>D-5 (Środa)</h2>
+      <div class="card">
+        <div class="session-tag tag-note">Mobilność + Wizualizacja</div>
+        <p>40 min mobilność całego ciała. Następnie 20 min szczegółowa wizualizacja każdej z 13 konkurencji — kolejność testowa, technika, oddychanie, tempo.</p>
+        <p style="margin-top:4px"><strong>Dieta:</strong> +80g węgli ponad normę.</p>
+      </div>
+
+      <h2>D-4 (Czwartek)</h2>
+      <div class="card">
+        <div class="session-tag tag-note">BRAK treningu</div>
+        <p>Spacer 20 min Zone 1. Nic więcej.</p>
+        <p style="margin-top:4px"><strong>Dieta:</strong> +100g węgli ponad normę (carb loading start). Dużo wody — minimum 4l.</p>
+      </div>
+
+      <h2>D-3 (Piątek)</h2>
+      <div class="card">
+        <div class="session-tag tag-note">BRAK treningu</div>
+        <p>Odpoczynek. Spacer jeśli chcesz — max 15 min.</p>
+        <p style="margin-top:4px"><strong>Dieta:</strong> +100g węgli. Sód +500mg extra (zapobiega odwodnieniu).</p>
+      </div>
+
+      <h2>D-2 (Sobota)</h2>
+      <div class="card">
+        <div class="session-tag tag-note">BRAK treningu</div>
+        <p>Pełny odpoczynek. Przygotuj sprzęt na testy.</p>
+        <p style="margin-top:4px"><strong>Dieta:</strong> Normalne makro. Sen 9h — najważniejszy sen przed testami.</p>
+      </div>
+
+      <h2>D-1 (Niedziela)</h2>
+      <div class="card">
+        <div class="session-tag tag-note">BRAK treningu</div>
+        <p>Wczesna lekka kolacja (węgle + białko, mało tłuszczu). Zero alkoholu. Do łóżka wcześnie. Sen 8–9h.</p>
+        <p style="margin-top:4px"><strong>Dieta:</strong> Lekki dzień — nie przekarmiaj się. Glikogen jest już naładowany.</p>
+      </div>
+
+      <h2>Dzień Testów</h2>
+      <div class="card" style="border-left:3px solid var(--green-text)">
+        <div class="session-tag tag-note">Protokół dnia testów</div>
+        <div class="tbl-wrap"><table class="tbl"><tr><th>Czas przed testami</th><th>Co robisz</th></tr>
+        <tr><td>2h przed</td><td>Śniadanie: 80g węgli + 40g białka + zero tłuszczu (np. ryż + białko jajka + banan). Łatwo strawne.</td></tr>
+        <tr><td>1h przed</td><td>Kreatyna 5g + Cytrulina 8g + Beta-Alanina 1,6g. 500ml wody z elektrolitami.</td></tr>
+        <tr><td>45 min przed</td><td>Kawa (kofeina 3–4 mg/kg = ~300–400mg). Bez L-teaniny jeśli chcesz ostry edge.</td></tr>
+        <tr><td>15 min przed</td><td>Dynamiczna rozgrzewka 10 min: trucht + arm circles + leg swings + 3 próbne podciągnięcia.</td></tr>
+        <tr><td>W trakcie</td><td>Między konkurencjami: sip wody + żel energetyczny lub banan co 2–3 eventi.</td></tr>
+        </table></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════ ŻYWIENIE ═══════════════ -->
+<div id="s-zywie" class="section">
+  <div class="nav-sub">
+    <button class="on" onclick="showSub('zywie','makro',this)">Makro</button>
+    <button onclick="showSub('zywie','suple',this)">Suplementacja</button>
+  </div>
+  <div id="zywie-makro" class="sub-section on">
+    <div class="g4">
+      <div class="metric"><div class="l">Białko / dzień</div><div class="n">280–300g</div></div>
+      <div class="metric"><div class="l">Dzień ciężki</div><div class="n">~3050 kcal</div></div>
+      <div class="metric"><div class="l">Dzień lekki</div><div class="n">~2460 kcal</div></div>
+      <div class="metric"><div class="l">Regeneracja</div><div class="n">~2240 kcal</div></div>
+    </div>
+    <div class="alert alert-info">Białko stałe 280g przez cały plan. Węgle cyklowane wg intensywności. <strong>Rekalibracja makra co 3 tygodnie</strong> (nie co 4) — przy 24kg do zrzucenia tempo redukcji musi być monitorowane częściej. Minimum tłuszczu: 1g/kg masy.</div>
+    <h2>Fazy 1–3 (deficyt aktywny)</h2>
+    <div class="tbl-wrap"><table class="tbl">
+    <tr><th>Typ dnia</th><th>Kiedy</th><th>Białko</th><th>Węgle</th><th>Tłuszcze</th><th>Kcal</th></tr>
+    <tr><td><strong>A · Walki + siła</strong></td><td>Pon/Śr</td><td>280g</td><td>290g</td><td>85g</td><td>~3085</td></tr>
+    <tr><td><strong>B · Ciężki wieczór</strong></td><td>Wt PM, Czw PM</td><td>280g</td><td>240g</td><td>88g</td><td>~2873</td></tr>
+    <tr><td><strong>C · Basen rano</strong></td><td>Wt AM, Czw AM</td><td>280g</td><td>150g</td><td>82g</td><td>~2458</td></tr>
+    <tr><td><strong>D · Regeneracja</strong></td><td>Niedziela</td><td>280g</td><td>100g</td><td>80g</td><td>~2240</td></tr>
+    </table></div>
+    <div class="alert alert-warn">Pon/Śr: dwie sesje (rano siła + walki wieczorem). Węgle najwyższe z całego tygodnia. Wt/Czw wieczór = ciężka sesja 3h — duże okno węglowodanowe 60 min przed i 45 min po. Sobota (bieg + basen) = typ A + dodatkowe 150 kcal węgli między sesjami.</div>
+    <h2>Faza 4 (brak deficytu, peaking)</h2>
+    <div class="tbl-wrap"><table class="tbl">
+    <tr><th>Typ dnia</th><th>Białko</th><th>Węgle</th><th>Tłuszcze</th><th>Kcal</th></tr>
+    <tr><td><strong>A</strong></td><td>280g</td><td>370g</td><td>85g</td><td>~3445</td></tr>
+    <tr><td><strong>B</strong></td><td>280g</td><td>310g</td><td>88g</td><td>~3232</td></tr>
+    <tr><td><strong>C</strong></td><td>280g</td><td>230g</td><td>82g</td><td>~2858</td></tr>
+    <tr><td><strong>D</strong></td><td>280g</td><td>180g</td><td>80g</td><td>~2640</td></tr>
+    </table></div>
+    <div class="g3">
+      <div class="card"><strong>Białko stałe</strong><p style="margin-top:4px">280g = 2,5g/kg przy 112kg. Minimum progu anabolicznego przy deficycie.</p></div>
+      <div class="card"><strong>Carb timing</strong><p style="margin-top:4px">≥60% węgli wokół treningu: 60 min przed + 45 min po. Wieczorem po ostatniej sesji: białko + tłuszcz.</p></div>
+      <div class="card"><strong>Absolutne zakazy</strong><p style="margin-top:4px">Alkohol (zero). Fast food. Słodycze. Przetworzone mięso. Biały chleb w dużych ilościach.</p></div>
+    </div>
+  </div>
+  <div id="zywie-suple" class="sub-section">
+    <div class="tier-label">TIER 1 — Fundament (codziennie, bezwarunkowo)</div>
+    <div class="tbl-wrap"><table class="tbl">
+    <tr><th>Suplement</th><th>Dawka i czas</th><th>Mechanizm</th><th>Dowody</th></tr>
+    <tr><td>Kreatyna monohydrat</td><td>5g rano/po treningu.</td><td>Fosfokreatyna → siła +5–15%, regeneracja ATP</td><td><span class="badge badge-g">Bardzo wysoka</span></td></tr>
+    <tr><td>Witamina D3 + K2 MK-7</td><td>5000 IU D3 + 200μg K2. Rano z tłuszczem.</td><td>Siła, testosteron, odporność. Polska: niedobory 8 mies./rok.</td><td><span class="badge badge-g">Wysoka</span></td></tr>
+    <tr><td>Magnez glicynian</td><td>400–500mg wieczorem.</td><td>Regeneracja, sen głęboki, kortyzol.</td><td><span class="badge badge-g">Wysoka</span></td></tr>
+    <tr><td>Omega-3 EPA+DHA</td><td>3–4g/dzień. Z posiłkiem tłuszczowym.</td><td>Redukcja stanu zapalnego, regeneracja stawów, VO2max.</td><td><span class="badge badge-g">Wysoka</span></td></tr>
+    <tr><td>Cynk bisglicynian</td><td>25–30mg wieczorem. OSOBNO od wapnia.</td><td>Niedobór = hamowanie testosteronu o 30%.</td><td><span class="badge badge-g">Wysoka</span></td></tr>
+    <tr><td>Witamina C</td><td>1000mg rano. NIE &lt;2h po treningu.</td><td>Immunologia. &lt;2h po treningu tłumi adaptacje mitochondrialne.</td><td><span class="badge badge-g">Wysoka</span></td></tr>
+    </table></div>
+    <div class="tier-label">TIER 2 — Performance (dni treningowe)</div>
+    <div class="tbl-wrap"><table class="tbl">
+    <tr><th>Suplement</th><th>Dawka i czas</th><th>Mechanizm</th><th>Dowody</th></tr>
+    <tr><td>Cytrulina Jabłczan 2:1</td><td>8g, 60 min przed treningiem.</td><td>NO → +40–50% dodatkowych pow. do fiaska.</td><td><span class="badge badge-g">Wysoka</span></td></tr>
+    <tr><td>Beta-Alanina</td><td>3,2g/dzień: 1,6g rano + 1,6g po południu.</td><td>Bufor H⁺ → opóźnienie zakwaszenia. Kluczowe dla biegu 12 min i siadów.</td><td><span class="badge badge-g">Wysoka</span></td></tr>
+    <tr><td>Kofeina</td><td>3–6 mg/kg 30–45 min przed. NIE po 14:00. Cycle off co 6 tyg.</td><td>Siła, wytrzymałość, VO2max.</td><td><span class="badge badge-g">Bardzo wysoka</span></td></tr>
+    <tr><td>Azotany (sok z buraka)</td><td>400–600mg, 2–3h przed wytrzymałościowym.</td><td>+1–3% VO2max. Do biegu 12 min i pływania.</td><td><span class="badge badge-g">Wysoka</span></td></tr>
+    <tr><td>Dwuwęglan sodu</td><td>0,3g/kg, 60–90 min przed. TYLKO F3–F4.</td><td>Bufor kwasowo-zasadowy. Przetestuj najpierw na treningu!</td><td><span class="badge badge-g">Wysoka</span></td></tr>
+    <tr><td>WPC/WPI</td><td>40g po treningu + 40g po walce (23:30).</td><td>Cel 280g białka. Okno anaboliczne po walce.</td><td><span class="badge badge-g">Wysoka</span></td></tr>
+    </table></div>
+    <div class="tier-label">TIER 3 — Specjalistyczne</div>
+    <div class="tbl-wrap"><table class="tbl">
+    <tr><th>Suplement</th><th>Dawka</th><th>Uwagi</th><th></th></tr>
+    <tr><td>Ashwagandha KSM-66</td><td>600mg wieczorem</td><td>Kortyzol −28%, testosteron +15%, VO2max +7. PRIORYTET przy stresie.</td><td><span class="badge badge-g">Wysoka</span></td></tr>
+    <tr><td>Rhodiola Rosea</td><td>200–400mg rano na czczo</td><td>Redukcja zmęczenia. F2–F3 (max objętość).</td><td><span class="badge badge-a">Śred-Wys</span></td></tr>
+    <tr><td>Tart Cherry</td><td>480mg antocyjanów lub 30ml × 2/dzień</td><td>DOMS −30–40%. PRIORYTET po walce pon/śr.</td><td><span class="badge badge-g">Wysoka</span></td></tr>
+    <tr><td>HMB (wolny kwas FA)</td><td>3g/dzień w 3 dawkach</td><td>Antykaboliczny przy deficycie + intensywny trening.</td><td><span class="badge badge-a">Średnia</span></td></tr>
+    <tr><td>Kolagen peptydy + Vit C</td><td>15g + 50mg, 30–60 min PRZED treningiem</td><td>Synteza kolagenu +20% (Shaw 2017). Profilaktyka kontuzji.</td><td><span class="badge badge-g">Wysoka (mech.)</span></td></tr>
+    </table></div>
+  </div>
+</div>
+
+<!-- ═══════════════ PROTOKOŁY ═══════════════ -->
+<div id="s-proto" class="section">
+  <div class="nav-sub">
+    <button class="on" onclick="showSub('proto','daily',this)">Codziennie</button>
+    <button onclick="showSub('proto','rwarm',this)">Rozgrzewka</button>
+    <button onclick="showSub('proto','gtg',this)">GTG</button>
+    <button onclick="showSub('proto','nd',this)">Niedziela</button>
+  </div>
+  <div id="proto-daily" class="sub-section on">
+    <div class="alert alert-warn">Każdy z tych elementów jest obowiązkowy KAŻDEGO dnia. Żadnych wyjątków.</div>
+    <h2>Protokół poranny</h2>
+    <div class="card">
+      <div class="seq">
+        <div class="seq-item"><div class="body"><strong>Tętno spoczynkowe</strong> — zmierz puls przez 60s zanim wstaniesz. Zapisz. 2-tygodniowa średnia = baseline. &gt;7 bpm powyżej średniej = zredukuj intensywność o 30%.</div></div>
+        <div class="seq-item"><div class="body"><strong>Nawodnienie</strong> — 500ml wody z elektrolitami zaraz po wstaniu. Przed kawą.</div></div>
+        <div class="seq-item"><div class="body"><strong>Kolagen + Vit C</strong> — 15g + 50mg na 30–60 min przed pierwszym treningiem.</div></div>
+        <div class="seq-item"><div class="body"><strong>Hip Flexor Stretch</strong> — 3×90s/stronę. Codziennie bez wyjątku. Psoas to limitator siadów.</div></div>
+        <div class="seq-item"><div class="body"><strong>GTG pull-ups</strong> — OBOWIĄZKOWE codziennie. Musisz mieć drążek w domu lub w miejscu pracy. 3–5 pow. pronowane, nie do fiaska. Brak drążka = brak GTG = wolniejszy progres podciągań.</div></div>
+      </div>
+    </div>
+    <h2>Protokół wieczorny</h2>
+    <div class="card">
+      <div class="seq">
+        <div class="seq-item"><div class="body"><strong>Zapis treningowy</strong> — każda seria, każde powtórzenie. Bez tego nie wiesz czy postępujesz.</div></div>
+        <div class="seq-item"><div class="body"><strong>Magnez + Cynk</strong> — przed snem.</div></div>
+        <div class="seq-item"><div class="body"><strong>Stretching 10 min</strong> — łydki, biodra, barki. Krytyczne po dniach z walkami.</div></div>
+        <div class="seq-item"><div class="body"><strong>Sen minimum 7,5h</strong> — priorytet równy treningowi. Bez snu nie ma superkompensacji.</div></div>
+      </div>
+    </div>
+  </div>
+  <div id="proto-rwarm" class="sub-section">
+    <h2>Rozgrzewka przed siłą (10 min)</h2>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Serie/Czas</th><th>Cel</th></tr>
+    <tr><td>Wioślarstwo/rower stacjonarny</td><td>3 min easy</td><td>Puls do 100–110</td></tr>
+    <tr><td>Hip Circles</td><td>10/stronę</td><td>Biodra</td></tr>
+    <tr><td>Arm Circles</td><td>10 przód/10 tył</td><td>Barki</td></tr>
+    <tr><td>Band Pull-aparts</td><td>2×20</td><td>Aktywacja tylnego barku</td></tr>
+    <tr><td>Active Hang</td><td>2×20s</td><td>Dekompresja + aktywacja lats</td></tr>
+    <tr><td>Squat z KB (lekki)</td><td>2×10</td><td>Biodra i kolana</td></tr>
+    </table></div>
+    <h2>Rozgrzewka przed biegiem (5 min)</h2>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Ilość</th></tr>
+    <tr><td>Trucht</td><td>2 min wolno</td></tr>
+    <tr><td>Leg swings (przód/tył)</td><td>10/noga</td></tr>
+    <tr><td>Leg swings (bok)</td><td>10/noga</td></tr>
+    <tr><td>High knees</td><td>20m</td></tr>
+    <tr><td>Butt kicks</td><td>20m</td></tr>
+    </table></div>
+  </div>
+  <div id="proto-gtg" class="sub-section">
+    <div class="alert alert-info">Grease The Groove — częste submaximalne powtórzenia budują efektywność nerwowo-mięśniową bez zmęczenia. Kluczowe dla podciągań.</div>
+    <h2>Zasady GTG</h2>
+    <ul>
+      <li>NIGDY do fiaska — zawsze 40–60% maksimum</li>
+      <li>Co najmniej 30 min przerwy między mini-seriami</li>
+      <li>Codziennie, 5–10 serii przez dzień</li>
+      <li>Tylko pronowany chwyt (standard KT)</li>
+      <li>GTG NIE zastępuje głównych sesji pull</li>
+    </ul>
+    <h2>Progresja GTG</h2>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Max bez asysty</th><th>Mini-seria GTG</th><th>Serie/dzień</th></tr>
+    <tr><td>0–2</td><td>Negatives 3s + band assisted 3</td><td>5</td></tr>
+    <tr><td>3–5</td><td>2 pow. czyste</td><td>6–8</td></tr>
+    <tr><td>6–10</td><td>4 pow.</td><td>6–8</td></tr>
+    <tr><td>11–15</td><td>6 pow.</td><td>8–10</td></tr>
+    <tr><td>16+</td><td>8 pow. lub weighted</td><td>6–8</td></tr>
+    </table></div>
+  </div>
+  <div id="proto-nd" class="sub-section">
+    <h2>Protokół niedzielny — regeneracja aktywna</h2>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Czas</th><th>Aktywność</th><th>Cel</th></tr>
+    <tr><td>Rano</td><td>60 min joga lub stretching całego ciała</td><td>Redukcja DOMS, mobilność</td></tr>
+    <tr><td>Przedpołudnie</td><td>Meal prep na tydzień</td><td>Konsekwencja żywieniowa</td></tr>
+    <tr><td>Południe</td><td>20 min spacer</td><td>Aktywacja bez obciążenia</td></tr>
+    <tr><td>Popołudnie</td><td>Przegląd tygodnia: wyniki, odchylenia, plan</td><td>Kontrola postępu</td></tr>
+    <tr><td>Wieczór</td><td>Wizualizacja skoku z wieży 5 min · Sen 8–9h</td><td>Superkompensacja + mentalna gotowość</td></tr>
+    </table></div>
+    <h2>Sygnały przetrenowania</h2>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Parametr</th><th>Sygnał alarmowy</th><th>Reakcja</th></tr>
+    <tr><td>Tętno spoczynkowe</td><td>&gt;7 bpm powyżej 2-tyg. średniej</td><td>Intensywność −30% przez 3 dni</td></tr>
+    <tr><td>Wyniki treningowe</td><td>Gorsze przez 2 tygodnie z rzędu</td><td>Tydzień deload</td></tr>
+    <tr><td>Sen</td><td>Problemy z zasypianiem mimo zmęczenia</td><td>Kortyzol za wysoki — zredukuj objętość</td></tr>
+    <tr><td>DOMS</td><td>&gt;7/10 przez &gt;72h</td><td>Zmniejsz objętość do regeneracji</td></tr>
+    </table></div>
+  </div>
+</div>
+
+<!-- ═══════════════ PARAMETRY ═══════════════ -->
+<div id="s-param" class="section">
+  <div class="alert alert-info">Parametry fizjologiczne i strefy intensywności. Aktualizuj co 4 tygodnie lub gdy waga spada &gt;3 kg.</div>
+  <h2>Strefy tętna (26 lat, HRmax ~194)</h2>
+  <div class="tbl-wrap"><table class="tbl"><tr><th>Strefa</th><th>Nazwa</th><th>HR</th><th>Kiedy</th></tr>
+  <tr><td>Zone 1</td><td>Aktywna regeneracja</td><td>&lt;116</td><td>Spacer, cool-down</td></tr>
+  <tr><td>Zone 2</td><td>Tlenowa baza</td><td>116–145</td><td>Długie biegi, stair master, długi basen</td></tr>
+  <tr><td>Zone 3</td><td>Tempo</td><td>146–165</td><td>Tempo runs, bieg z kamizelką</td></tr>
+  <tr><td>Zone 4</td><td>Próg mleczanowy</td><td>166–175</td><td>Interwały 400m, 800m</td></tr>
+  <tr><td>Zone 5</td><td>VO2max</td><td>176–194</td><td>VO2max 4×4 min, sprinty finiszowe</td></tr>
+  </table></div>
+  <h2>Kamizelka obciążeniowa — harmonogram</h2>
+  <div class="tbl-wrap"><table class="tbl"><tr><th>Faza/Tydzień</th><th>Waga kamizelki</th><th>Gdzie stosować</th></tr>
+  <tr><td>F1 (Tyg 1–3)</td><td>Brak</td><td>119 kg = wystarczające obciążenie własne</td></tr>
+  <tr><td>F2 Tyg 4–9</td><td>Brak</td><td>~110–116 kg</td></tr>
+  <tr><td>F2 Tyg 10–12</td><td>5 kg</td><td>Stair master, bieg sobota (szac. waga ~110kg)</td></tr>
+  <tr><td>F3 Tyg 13–21</td><td>5 kg</td><td>Biegi tempo, stair master, conditioning</td></tr>
+  <tr><td>F4 Tyg 22–24</td><td>Stopniowo odpinamy</td><td>Taper — wracamy do BW</td></tr>
+  </table></div>
+  <h2>Kalkulacja 1RM i progresja</h2>
+  <div class="tbl-wrap"><table class="tbl"><tr><th>Ćwiczenie</th><th>Szac. 1RM start</th><th>Cel F3</th><th>Cel testów</th></tr>
+  <tr><td>Bench Press</td><td>~119 kg (BW)</td><td>125–130 kg</td><td>95 kg × 14+ pow.</td></tr>
+  <tr><td>Back Squat</td><td>~110 kg</td><td>125 kg</td><td>Wytrzymałość nóg dla step-ups</td></tr>
+  <tr><td>Pendlay Row</td><td>~90 kg</td><td>105 kg</td><td>Baza dla podciągań</td></tr>
+  </table></div>
+</div>
+
+<!-- ═══════════════ BENCHMARKI ═══════════════ -->
+<div id="s-bench" class="section">
+  <div class="alert alert-info">10 punktów kontrolnych przez 29 tygodni. Pomiar w czwartki (symulacja F3) lub soboty (full sim). Step-ups: standard testowy 50cm + krążek 20kg. Wartości skalibrowane dla startu 119kg i ~830g redukcji/tydzień.</div>
+  <div class="tbl-wrap"><table class="tbl">
+  <tr><th style="min-width:60px">Tydzień</th><th>Waga</th><th>Podciąg.</th><th>Dipsy</th><th>Siady 2min</th><th>Step-ups 2min<br><small>(50cm+20kg)</small></th><th>Ławka×BW</th><th>200m kraul</th><th>Nurkow.</th><th>12min bieg</th></tr>
+  <tr><td>Start</td><td>119</td><td>0–1</td><td>3–4</td><td>~52</td><td>~18</td><td>1</td><td>~4:35</td><td>~18m</td><td>nie testuj</td></tr>
+  <tr><td>Tyg 3</td><td class="ok-v">~112</td><td>2–4</td><td>6–8</td><td>58</td><td>22</td><td>2</td><td>4:25</td><td class="ok-v">21m</td><td>nie testuj</td></tr>
+  <tr><td>Tyg 6</td><td class="ok-v">~109</td><td>4–6</td><td>9–12</td><td>64</td><td>26</td><td>4–5</td><td>4:18</td><td>22m</td><td class="ok-v">~2650m</td></tr>
+  <tr><td>Tyg 9</td><td>~107</td><td>6–8</td><td>12–15</td><td>70</td><td>29</td><td>6–7</td><td>4:14</td><td>22–23m</td><td>~2750m</td></tr>
+  <tr><td>Tyg 12</td><td>~106</td><td>8–10</td><td>15–18</td><td>76</td><td>32</td><td>8</td><td>4:11</td><td>23m</td><td>~2850m</td></tr>
+  <tr><td>Tyg 15</td><td>~103</td><td>10–13</td><td>18–22</td><td>81</td><td>35</td><td>9–10</td><td>4:08</td><td>23–24m</td><td>~2950m</td></tr>
+  <tr><td>Tyg 18</td><td>~101</td><td>13–16</td><td>22–26</td><td>86</td><td>38</td><td>11</td><td>4:06</td><td>24m</td><td>~3030m</td></tr>
+  <tr><td>Tyg 21</td><td>~99</td><td>16–18</td><td>26–29</td><td>90</td><td>41</td><td>12</td><td>4:04</td><td>24–25m</td><td>~3090m</td></tr>
+  <tr><td>Tyg 24</td><td>~97</td><td>18–21</td><td>29–31</td><td>93</td><td>43</td><td>13</td><td>4:02</td><td>25m</td><td>~3150m</td></tr>
+  <tr><td>Tyg 27</td><td>~95</td><td>20–23</td><td>31–34</td><td>97</td><td>46</td><td>14</td><td>4:01</td><td>25m+</td><td>~3200m</td></tr>
+  <tr class="cel"><td><strong>CEL (5 pkt)</strong></td><td class="ok-v">~95</td><td class="ok-v">≥23</td><td class="ok-v">≥33</td><td class="ok-v">≥100</td><td class="ok-v">≥47</td><td class="ok-v">≥14</td><td class="ok-v">≤4:10</td><td class="ok-v">25m</td><td class="ok-v">≥3250m</td></tr>
+  </table></div>
+  <p class="footnote">Start 119kg: benchmarki obniżone ~2–3 jednostki vs wersja 115kg. Podciągania i step-ups najbardziej wrażliwe na masę startową. Redukcja ~830g/tydz wymagana — rekalibracja makr co 3 tygodnie. Plecak 5kg od Tyg 10 (szac. ~110kg). Bieg cel 3250m daje margines dla zapisu ≥3200m.</p>
+</div>
+
+<!-- ═══════════════ TECHNIKA ═══════════════ -->
+<div id="s-tech" class="section">
+  <div class="nav-sub">
+    <button class="on" onclick="showSub('tech','pull',this)">Podciąg.</button>
+    <button onclick="showSub('tech','dip',this)">Dipsy</button>
+    <button onclick="showSub('tech','sit',this)">Siady</button>
+    <button onclick="showSub('tech','step',this)">Step-ups</button>
+    <button onclick="showSub('tech','lina',this)">Lina</button>
+    <button onclick="showSub('tech','wieza',this)">Skoki</button>
+    <button onclick="showSub('tech','law',this)">Ławka</button>
+    <button onclick="showSub('tech','stres',this)">Stres/Zmęcz.</button>
+  </div>
+  <div id="tech-pull" class="sub-section on">
+    <h2>Podciągania — specyfikacja testowa</h2>
+    <div class="alert alert-danger">Kontakt z podłożem kończy próbę natychmiast. Nigdy nie schodź na ziemię między powtórzeniami podczas treningu — wyrabiaj nawyk pozostawania w zwisie.</div>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Element</th><th>Standard</th><th>Dlaczego ważne</th></tr>
+    <tr><td>Chwyt</td><td>PRONOWANY (nachwyt). Szerokość barkowa lub nieco szersza.</td><td>Test KT = wyłącznie pronowany. Nie trenujesz podchwytu.</td></tr>
+    <tr><td>Pozycja wyjściowa</td><td>Pełne rozwieszenie. Łopatki AKTYWNE — nie pasywny zwis.</td><td>Pasywny zwis = ryzyko barku przy zmęczeniu + utrata zakresu ruchu.</td></tr>
+    <tr><td>Ruch w górę</td><td>Ciągnij łokcami w dół i do tyłu. Klatka do drążka.</td><td>Aktywacja lats zamiast bicepsa — więcej powtórzeń przy tym samym zmęczeniu.</td></tr>
+    <tr><td>Top</td><td>Broda WYRAŹNIE ponad drążkiem</td><td>Trenuj z marginesem — przy zmęczeniu broda siada niżej.</td></tr>
+    <tr><td>Praca nóg/tułowia</td><td class="cel">ZAKAZ pracy nóg i tułowia (kipping)</td><td>Kipping = powtórzenie niezaliczone. Trenuj zawsze czysto.</td></tr>
+    <tr><td>Kontakt z podłożem</td><td class="cel">Dotknięcie podłoża kończy próbę</td><td>Nigdy nie schodź na ziemię między powtórzeniami w treningu.</td></tr>
+    <tr><td>Tempo</td><td>1s w górę, 0,5s na górze, 1–2s w dół</td><td>Rytm przy 20+ pow. oszczędza energię.</td></tr>
+    <tr><td>Oddychanie</td><td>Wydech w górę, wdech w dół</td><td>Zatrzymanie oddechu przy zmęczeniu = szybsze zakwaszenie.</td></tr>
+    </table></div>
+  </div>
+  <div id="tech-dip" class="sub-section">
+    <h2>Dipsy — specyfikacja testowa</h2>
+    <div class="alert alert-danger">Kontakt z podłożem kończy próbę natychmiast. Nigdy nie schodź na ziemię między powtórzeniami w treningu.</div>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Element</th><th>Standard</th><th>Uwagi</th></tr>
+    <tr><td>Szerokość poręczy</td><td>Barkowa (parallel bars symetryczne)</td><td></td></tr>
+    <tr><td>Pozycja wyjściowa</td><td>Pełny wyprost łokci, bez kontaktu z podłożem</td><td></td></tr>
+    <tr><td>Zejście — minimum</td><td>Kąt 90° w stawach łokciowych — barki PONIŻEJ łokci</td><td class="cel">Powyżej 90° = niezaliczone. Trenuj z marginesem: barki wyraźnie poniżej łokci.</td></tr>
+    <tr><td>Pochylenie tułowia</td><td>Lekkie do przodu (~15°)</td><td>Aktywuje klatkę, zmniejsza obciążenie tricepsa.</td></tr>
+    <tr><td>Nogi</td><td>Skrzyżowane lub złączone za sobą. Praca nóg dozwolona.</td><td>Regulamin dopuszcza pracę nóg i tułowia.</td></tr>
+    <tr><td>Kontakt z podłożem</td><td class="cel">Dotknięcie podłoża kończy próbę</td><td>Nigdy nie schodź na ziemię między powtórzeniami.</td></tr>
+    <tr><td>Wyjście</td><td>Pełne wyprostowanie łokci</td><td>Trenuj z marginesem — przy zmęczeniu wyprost się skraca.</td></tr>
+    </table></div>
+  </div>
+  <div id="tech-sit" class="sub-section">
+    <div class="alert alert-danger">Trenuj DOKŁADNIE tę technikę od Tygodnia 1.</div>
+    <h2>Siady — specyfikacja testowa</h2>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Element</th><th>Standard testowy</th><th>Uwagi</th></tr>
+    <tr><td>Nogi</td><td>Kolana zgięte ~90°, stopy płasko</td><td>Stopy kotwiczone</td></tr>
+    <tr><td>Ręce</td><td>Palce splecione u podstawy czaszki</td><td>Łokcie w bok. Nie ciągnij za szyję.</td></tr>
+    <tr><td>Top</td><td>Oba łokcie dotykają obu kolan jednocześnie</td><td>Skręcanie = nie liczone. Dotknięcie musi być obustronne.</td></tr>
+    <tr><td>Bottom</td><td>ŁOKCIE dotykają podłoża — nie tylko łopatki</td><td class="cel">KRYTYCZNE. Łopatki na macie ale łokcie uniesione = powtórzenie NIEZALICZONE.</td></tr>
+    <tr><td>Biodra</td><td>Biodra przylegają do podłoża przez cały czas</td><td>Unoszenie bioder = niezaliczone.</td></tr>
+    <tr><td>Tempo (cel 100/2min)</td><td>50 pow/min = 1 pow. co 1,2s</td><td>Metronom 100 bpm od Tygodnia 1.</td></tr>
+    <tr><td>Limitator</td><td>Zmęczenie zginaczy bioder (psoas) + ból szyi przy złej technice</td><td>Hip Flexor Stretch CODZIENNIE. Nie ciągnij za szyję — ręce tylko podtrzymują głowę.</td></tr>
+    </table></div>
+  </div>
+  <div id="tech-step" class="sub-section">
+    <h2>Wejścia na podest z obciążeniem — specyfikacja testowa</h2>
+    <div class="alert alert-danger">Podest 50 cm + krążek 20 kg od Tygodnia 1. Nigdy inaczej. Trening na złym standardzie przez 29 tygodni = brak adaptacji do właściwego ćwiczenia.</div>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Element</th><th>Standard</th><th>Uwagi</th></tr>
+    <tr><td>Wysokość podestu</td><td><strong>50 cm — standard testowy</strong></td><td class="cel">Od Tygodnia 1. Nigdy innym. 45cm = błędne ćwiczenie.</td></tr>
+    <tr><td>Obciążenie</td><td><strong>Krążek 20 kg trzymany dowolnie</strong></td><td class="cel">Od Tygodnia 1. Bez krążka = błędne ćwiczenie.</td></tr>
+    <tr><td>1 powtórzenie</td><td>Wejście obu stóp na podest → pełny wyprost ciała → zejście obu stóp = 1 pow.</td><td>Pełny wyprost = kluczowy wymóg regulaminu. Bez wyprostu = niezaliczone.</td></tr>
+    <tr><td>Pochylenie tułowia</td><td>ZAKAZ pochylania tułowia do przodu</td><td class="cel">Pochylony tułów = powtórzenie niezaliczone.</td></tr>
+    <tr><td>Tempo (cel 47/2min)</td><td>Metronom 94 bpm</td><td>Ustaw metronom od razu. Rytm ratuje wynik przy zmęczeniu.</td></tr>
+    <tr><td>Limitator</td><td>Zmęczenie czworogłowych + HR ~170–180</td><td>Trenuj przy HR 160–175. Nogi będą palić — to jest normalne.</td></tr>
+    </table></div>
+  </div>
+  <div id="tech-lina" class="sub-section">
+    <div class="alert alert-danger">KONKURENCJA LINOWA (poz. 5): WYŁĄCZNIE BEZ POMOCY NÓG. Regulamin jest jednoznaczny. Użycie nóg = dyskwalifikacja natychmiastowa całego testu. J-hook i techniki nożne są dozwolone TYLKO na torze przeszkód (poz. 12 — ściana strażacka z liną). Nigdy na linie testowej.</div>
+    <h2>Technika wejścia bez nóg — standard testowy</h2>
+    <div class="card">
+      <div class="seq">
+        <div class="seq-item"><div class="body"><strong>Pozycja startowa:</strong> Stań pod liną, chwyć oburącz na wysokości głowy. Nogi swobodnie wiszą lub skrzyżowane — bez kontaktu z liną przez cały czas.</div></div>
+        <div class="seq-item"><div class="body"><strong>Ruch w górę:</strong> Ciągnij się na rękach — najpierw jeden chwyt wyżej, potem drugi. Pracują wyłącznie ramiona, barki i plecy. Nogi wiszą nieruchomo.</div></div>
+        <div class="seq-item"><div class="body"><strong>Chwyt:</strong> Pewny chwyt kciukiem wokół liny (zamknięty). Dłonie na przemian — nie obie naraz.</div></div>
+        <div class="seq-item"><div class="body"><strong>Cel:</strong> Jedna dłoń dotyka oznaczenia na linie na wysokości 6m. To kończy pierwsze wejście.</div></div>
+        <div class="seq-item"><div class="body"><strong>Zejście:</strong> Kontrolowane, bez nóg. W ciągu 5 sekund od dotknięcia podłoża zaczynasz drugie wejście.</div></div>
+        <div class="seq-item"><div class="body"><strong>Drugie wejście:</strong> Identycznie. Zaliczone po dotknięciu oznaczenia drugi raz.</div></div>
+      </div>
+    </div>
+    <div class="alert alert-warn">Siła chwytu to główny limitator przy wejściu bez nóg. Farmer's Carry, Dead Hangs i Towel Pull-ups są bezpośrednim treningiem chwytu dla tej konkurencji. GTG na drążku buduje siłę ramion pod ten wzorzec.</div>
+    <h2>Progresja tygodniowa — lina bez nóg</h2>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Tygodnie</th><th>Cel</th><th>Format sesji</th><th>Gdzie</th></tr>
+    <tr><td>F1 Tyg 1–3</td><td>Dead Hangs + Towel Pull-ups — budowanie siły chwytu</td><td>Dead hang 3×max · Towel pull-ups 3×5 · Active hangs 3×20s</td><td>Wt wieczór po pull</td></tr>
+    <tr><td>F2 Tyg 4–6</td><td>Partial climb bez nóg — do 3m</td><td>5× wejście 3m bez nóg. Powolne, kontrolowane.</td><td>Wt wieczór + Pt wieczór</td></tr>
+    <tr><td>F2 Tyg 7–9</td><td>Pełne wejście 6m bez nóg</td><td>3× wejście 6m. Przerwa 4 min między próbami.</td><td>Wt wieczór + Pt wieczór</td></tr>
+    <tr><td>F2 Tyg 10–12</td><td>2× wejście 6m z zejściem w 5s — standard testowy</td><td>Symulacja testu: 2 wejścia z 5s przerwą. 2× tygodniowo.</td><td>Wt wieczór + Pt wieczór</td></tr>
+    <tr><td>F3 Tyg 13–21</td><td>Szybkość + pewność wykonania</td><td>3× symulacja testowa/sesję. Timing każdego wejścia.</td><td>Wt wieczór + Pt wieczór</td></tr>
+    <tr><td>F4 Tyg 22+</td><td>Maintenance — nie forsuj przy taperze</td><td>2× symulacja testowa tygodniowo.</td><td>Wt wieczór</td></tr>
+    </table></div>
+    <h2>Technika J-hook — TYLKO na tor przeszkód (poz. 12)</h2>
+    <div class="alert alert-info">J-hook jest dozwolony i wskazany na ścianie strażackiej z liną (poz. 12 toru przeszkód). Trenuj go osobno od F2 jako element conditioning piątkowego. Nigdy nie mylić z liną testową.</div>
+    <div class="card">
+      <div class="seq">
+        <div class="seq-item"><div class="body">Stań pod liną. Chwyć oburącz powyżej głowy.</div></div>
+        <div class="seq-item"><div class="body">Zegnij kolana i podciągnij linę między nogami.</div></div>
+        <div class="seq-item"><div class="body">Druga noga zakłada się "hakiem" (J) nad liną.</div></div>
+        <div class="seq-item"><div class="body">Naciśnij stopami linę w dół → prostując nogi wychodzisz w górę.</div></div>
+        <div class="seq-item"><div class="body">Ręce chwytają wyżej, nogi hookują ponownie → rytmicznie.</div></div>
+      </div>
+    </div>
+  </div>
+  <div id="tech-wieza" class="sub-section">
+    <div class="alert alert-danger">Poz. 3 (skok z wieży basenowej) i Poz. 13 (próba wysokościowa) to dwie różne konkurencje. Poz. 13 = kolejka tyrolska z wieży 10m. NIE jest to skok do wody. Sprzęt (uprząż, karabinki, liny) zapewnia organizator.</div>
+
+    <h2>Poz. 3 — Skok z wieży basenowej 10m</h2>
+    <div class="alert alert-warn">Skok musi nastąpić w ciągu 5 SEKUND od komendy "start". Wahanie powyżej 5s = dyskwalifikacja. Nie ma negocjacji z czasem.</div>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Element</th><th>Standard</th><th>Uwagi</th></tr>
+    <tr><td>Pozycja ciała</td><td>Pionowa, ręce wzdłuż tułowia, głowa w przedłużeniu kręgosłupa, wzrok prosto przed siebie</td><td>Nie patrz w dół — zwiększa strach i destabilizuje ciało.</td></tr>
+    <tr><td>Nogi</td><td>Złączone, wejście pionowe do wody</td><td>Rozchylone nogi = ból przy kontakcie z wodą z 10m.</td></tr>
+    <tr><td>Czas</td><td class="cel">5 sekund od komendy. Przekroczenie = dyskwalifikacja.</td><td>Trenuj decyzyjność, nie technikę — ciało samo przyjmuje właściwą pozycję.</td></tr>
+    <tr><td>Po skoku</td><td>Wynurz się, dowolnym stylem dopłyń do drabinek</td><td></td></tr>
+    </table></div>
+
+    <h2>Poz. 13 — Próba wysokościowa (kolejka tyrolska z 10m)</h2>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Etap</th><th>Co robisz</th><th>Uwagi</th></tr>
+    <tr><td>Przygotowanie</td><td>Zakładasz kask i uprząż zapewnione przez organizatora. Wpinają Cię w stanowisko asekuracyjne.</td><td>Słuchaj instrukcji — nie improwizuj ze sprzętem.</td></tr>
+    <tr><td>Wspinaczka</td><td>Wspinasz się po drabince speleo (elastyczna drabinka linowa) na wieżę 10m.</td><td>Tempo spokojne — to nie jest konkurencja szybkości wspinaczki.</td></tr>
+    <tr><td>Przejście do kolejki</td><td>Na górze przechodzisz do stanowiska zjazdowego (kolejka tyrolska — napiąta lina między dwoma stanowiskami na różnej wysokości).</td><td>Prowadzący wskazuje dokładne miejsce.</td></tr>
+    <tr><td>Skok</td><td class="cel">5 sekund od komendy "skok". Wykonujesz skok i zjazd w dół po kolejce tyrolskiej.</td><td>Wahanie >5s = dyskwalifikacja. Harness trzyma — nie możesz spaść.</td></tr>
+    </table></div>
+
+    <h2>Protokół mentalny — oba skoki</h2>
+    <ul>
+      <li>Strach na wysokości to reakcja pnia mózgu — normalna i przewidywalna. Trenuje się ją ekspozycją, nie odwagą.</li>
+      <li>Kluczowe słowo przed skokiem: "decyzja już podjęta". Podejdź, stań, skocz. Nie analizuj.</li>
+      <li>Patrz PROSTO — horyzontalnie, nie w dół. To jedyna techniczna wskazówka której potrzebujesz.</li>
+      <li>Harness (Tyg 13) i woda (Tyg 3) Cię asekurują. Ryzyko fizyczne = zero przy prawidłowym skoku.</li>
+    </ul>
+
+    <h2>Protokół ekspozycji stopniowej</h2>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Faza</th><th>Cel</th><th>Częstotliwość</th></tr>
+    <tr><td>F1 (Tyg 1–3)</td><td>Wizualizacja 10 min/niedziela — mentalny przebieg obu skoków</td><td>Co niedziela</td></tr>
+    <tr><td>F2 (Tyg 4–9)</td><td>Skoki do wody z 1m → 3m → 5m przy basenie ze skocznią</td><td>Co 2 tygodnie</td></tr>
+    <tr><td>F2 (Tyg 10–12)</td><td>Skok z 10m do wody — pierwszy kontakt z docelową wysokością</td><td>1× w bloku</td></tr>
+    <tr><td>F3 (Tyg 13+)</td><td>Skok z 10m regularnie. Kolejka tyrolska jeśli dostępna.</td><td>Co miesiąc</td></tr>
+    </table></div>
+  </div>
+  <div id="tech-law" class="sub-section">
+    <h2>Wyciskanie sztangi — specyfikacja testowa</h2>
+    <div class="alert alert-danger">Trzy najczęstsze przyczyny niezaliczenia powtórzenia: odbijanie gryfu od klatki, odrywanie stóp od podłoża, odrywanie pośladków od ławki. Trenuj z nawykiem od Tygodnia 1.</div>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Element</th><th>Standard</th><th>Uwagi</th></tr>
+    <tr><td>Ciężar</td><td>Dokładna masa ciała zaokrąglona w górę do 2,5 kg (np. 95,3 kg → 97,5 kg)</td><td>Cel: ~95kg → sztanga ~95–97,5 kg × ≥14 pow.</td></tr>
+    <tr><td>Pozycja</td><td>Leżenie tyłem, łopatki i pośladki przylegają do ławki przez cały czas</td><td class="cel">Odrywanie pośladków = powtórzenie niezaliczone.</td></tr>
+    <tr><td>Stopy</td><td class="cel">Żadna stopa nie może zostać oderwana od podłoża</td><td>Stopy płasko na podłodze przez cały czas. Zakaz wspinania na palce.</td></tr>
+    <tr><td>Zejście</td><td>Drążek dotyka klatki piersiowej (kontakt obowiązkowy)</td><td>Bez kontaktu = niezaliczone.</td></tr>
+    <tr><td>Odbijanie</td><td class="cel">ZAKAZ odbijania gryfu od klatki</td><td>Kontrolowane zejście, chwila pauzy lub pełny kontakt bez impulsu.</td></tr>
+    <tr><td>Wyjście</td><td>Pełne wyprostowanie łokci</td><td>Trenuj z marginesem — na testach przy zmęczeniu wyprost się skraca.</td></tr>
+    <tr><td>Chwyt</td><td>Zamknięty — kciuk wokół drążka</td><td>False grip = ryzyko upuszczenia. Zawsze zamknięty.</td></tr>
+    </table></div>
+  </div>
+  <div id="tech-stres" class="sub-section">
+    <div class="alert alert-info">Poz. 14 — Ocena umiejętności radzenia sobie ze stresem w sytuacji zmęczenia fizycznego i psychicznego. 40 minut. Zalicz/nie zalicz. Nie rezygnujesz niezależnie od niczego.</div>
+    <h2>Przebieg próby</h2>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Etap</th><th>Czas</th><th>Co się dzieje</th></tr>
+    <tr><td>Wejście</td><td>—</td><td>Wchodzisz do zaciemnionego pomieszczenia. Świeci się tylko jedno źródło światła. Stajesz w postawie zasadniczej (wyprostowany, bez ruchu) i patrzysz w punkt wskazany przez prowadzącego.</td></tr>
+    <tr><td>Pytania</td><td>Cały czas</td><td>Prowadzący zadaje pytania z wiedzy ogólnej: spostrzegawczość, pamięć, łączenie faktów. Odpowiadasz stojąc bez ruchu.</td></tr>
+    <tr><td>Błędna odpowiedź</td><td>—</td><td>Na komendę "ćwicz" wykonujesz 20 pompek z pełnym zakresem (barki poniżej łokci, pełny wyprost). Prowadzący liczy głośno. Po 20 wracasz do postawy zasadniczej. Cykl się powtarza.</td></tr>
+    <tr><td>Czas trwania</td><td>40 min</td><td>Próba trwa 40 minut bez przerwy.</td></tr>
+    </table></div>
+    <div class="alert alert-danger">Rezygnacja z wykonania pompek lub z próby = niezaliczone. Jeden błąd organizacyjny (odrywasz wzrok, ruszasz się bez komendy, nie stajesz w postawie zasadniczej) = ocena negatywna predyspozycji. Nie improwizuj.</div>
+    <h2>Pompki testowe — specyfikacja</h2>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Element</th><th>Standard</th><th>Uwagi</th></tr>
+    <tr><td>Zakres ruchu</td><td>Stawy barkowe PONIŻEJ stawów łokciowych w dolnej pozycji</td><td class="cel">Głębiej niż standardowe pompki. Trenuj ten zakres od początku.</td></tr>
+    <tr><td>Tułów</td><td>Wyprostowany przez cały ruch</td><td>Ugięcie tułowia = niezaliczone powtórzenie.</td></tr>
+    <tr><td>Wyjście</td><td>Pełny wyprost łokci</td><td></td></tr>
+    <tr><td>Ilość</td><td>20 powtórzeń za każdą błędną odpowiedź</td><td>Przy zmęczeniu po 13 konkurencjach to jest realne wyzwanie.</td></tr>
+    </table></div>
+    <h2>Strategia mentalna</h2>
+    <ul>
+      <li><strong>To jest test mentalny, nie fizyczny.</strong> Fizycznie dasz radę — 29 tygodni treningu to gwarantuje. Pytanie brzmi czy utrzymasz spokój i skupienie.</li>
+      <li><strong>Postawa zasadnicza to nie kaźń — to zadanie.</strong> Traktuj stanie bez ruchu jako ćwiczenie koncentracji, nie karę.</li>
+      <li><strong>Nie spieszysz się z odpowiedzią.</strong> Krótka pauza przed odpowiedzią jest lepiej widziana niż szybka błędna.</li>
+      <li><strong>Pompki to ulga, nie kara.</strong> Ruch po staniu = rozluźnienie. Wykonuj je spokojnie i technicznie poprawnie.</li>
+      <li><strong>Nie rezygnujesz.</strong> Niezależnie od zmęczenia, bólu, stresu. To jest jedyny warunek zaliczenia.</li>
+    </ul>
+    <h2>Jak trenować tę próbę</h2>
+    <p>Po każdej ciężkiej sesji (wt/czw wieczór) — zanim wyjdziesz z siłowni: stań przez 5 minut w postawie zasadniczej i odpowiadaj na losowe pytania (poproś kogoś lub używaj aplikacji z pytaniami wiedzy ogólnej). Następnie wykonaj 3×20 pompek z pełnym zakresem. To jest specyficzne przygotowanie do tej próby przy zmęczeniu fizycznym.</p>
+  </div>
+<div id="s-bezp" class="section">
+  <div class="nav-sub">
+    <button class="on" onclick="showSub('bezp','nrk',this)">Nurkowanie</button>
+    <button onclick="showSub('bezp','inj',this)">Kontuzja</button>
+    <button onclick="showSub('bezp','sick',this)">Choroba</button>
+  </div>
+  <div id="bezp-nrk" class="sub-section on">
+    <div class="alert alert-danger">SHALLOW WATER BLACKOUT — utrata przytomności pod wodą BEZ ostrzeżenia. Zabija silnych pływaków. Przyczyna: hyperwentylacja przed nurkowaniem. NIE hyperwentyluj NIGDY.</div>
+    <h2>Protokół bezpieczeństwa — każda sesja z nurkowaniem</h2>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Zasada</th><th>Standard</th><th>Brak = zakaz nurkowania</th></tr>
+    <tr><td>Asekuracja</td><td>1 osoba na krawędzi, nogi w wodzie, oczy na Tobie przez cały czas</td><td>Tak. Zawsze. Zero wyjątków.</td></tr>
+    <tr><td>Oddychanie przed</td><td>Normalne oddechy 2–3 min. Jeden normalny wydech. Wstrzymaj. Nurkuj.</td><td>ZERO głębokich szybkich oddechów</td></tr>
+    <tr><td>Przerwa między próbami</td><td>Minimum 4 min.</td><td>Zmęczony układ oddechowy = ryzyko blackout</td></tr>
+    <tr><td>Sygnał awaryjny</td><td>Kciuk w dół = pomocy natychmiast</td><td>Asekurujący reaguje i wskakuje natychmiast</td></tr>
+    <tr><td>Nigdy sam</td><td>Nawet statyczne wstrzymania na powierzchni</td><td>Bez wyjątków.</td></tr>
+    </table></div>
+  </div>
+  <div id="bezp-inj" class="sub-section">
+    <div class="alert alert-warn">Tydzień odpoczynku przy wczesnej kontuzji ratuje 4 tygodnie przy zaawansowanej.</div>
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Kontuzja</th><th>Sygnał</th><th>Działanie</th><th>Alt. trening</th></tr>
+    <tr><td>Bark</td><td>Ból &gt;3/10 przy push/pull</td><td>Pomiń push i pull 3–5 dni.</td><td>Bieg, basen, nogi</td></tr>
+    <tr><td>Kolano</td><td>Ból przy zginaniu</td><td>Pomiń nogi i step-ups. Lód 3× dziennie.</td><td>Pływanie, górna część</td></tr>
+    <tr><td>Dolny grzbiet</td><td>Ból przy deadlift</td><td>Zero DL i squat.</td><td>Pływanie, górna część</td></tr>
+    <tr><td>Rozcięgno podeszwowe</td><td>Ból pierwszych kroków rano</td><td>Rozciąganie łydki codziennie. Bieg −50%.</td><td>Basen, stair master, siłownia</td></tr>
+    </table></div>
+  </div>
+  <div id="bezp-sick" class="sub-section">
+    <div class="tbl-wrap"><table class="tbl"><tr><th>Poziom</th><th>Objawy</th><th>Co robisz</th><th>Kiedy wracasz</th></tr>
+    <tr><td><strong>Lekka</strong></td><td>Katar, brak gorączki</td><td>Pomiń basen. Siłownia −30%. Cardio Zone 1.</td><td>Pełny trening gdy objawy &lt;50%</td></tr>
+    <tr><td><strong>Umiarkowana</strong></td><td>Gorączka &gt;37,5°C</td><td>PEŁNY ODPOCZYNEK.</td><td>48h bez gorączki → 2 dni @50%</td></tr>
+    <tr><td><strong>Ciężka</strong></td><td>Gorączka &gt;38,5°C 3+ dni</td><td>Lekarz.</td><td>Po zaleceniu + 3 dni @50%</td></tr>
+    </table></div>
+    <h2>Nadrabianie po chorobie</h2>
+    <ul>
+      <li>3–5 dni opuszczone: kontynuuj plan od miejsca gdzie skończyłeś.</li>
+      <li>6–10 dni: przedłuż bieżącą fazę o tyle dni.</li>
+      <li>&gt;10 dni w F3 lub F4: oceń realistycznie gotowość do testów.</li>
+    </ul>
+  </div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /app -->
+
+<script>
+function showMain(id,btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.nav-main button').forEach(b=>b.classList.remove('on'));
+  document.getElementById('s-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+function showSub(grp,id,btn){
+  const grpEl=document.getElementById('s-'+grp);
+  grpEl.querySelectorAll('.sub-section').forEach(s=>s.classList.remove('on'));
+  grpEl.querySelectorAll('.nav-sub button').forEach(b=>b.classList.remove('on'));
+  document.getElementById(grp+'-'+id).classList.add('on');
+  btn.classList.add('on');
+}
+function showF4(id,btn){
+  document.querySelectorAll('.f4-block').forEach(b=>b.style.display='none');
+  document.getElementById(id).style.display='block';
+  btn.closest('.nav-sub').querySelectorAll('button').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+}
+</script>
+</body>
+</html>
